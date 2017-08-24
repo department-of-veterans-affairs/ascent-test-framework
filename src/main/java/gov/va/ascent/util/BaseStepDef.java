@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cucumber.api.Scenario;
 
 public class BaseStepDef {
@@ -80,7 +82,12 @@ public class BaseStepDef {
 	public void checkResponseContainsValue(String strResFile) throws Throwable {
 
 		String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
-		assertThat(strResponse).contains(strExpectedResponse);
+		ObjectMapper mapper = new ObjectMapper();
+		Object strExpectedResponseJson = mapper.readValue(strExpectedResponse, Object.class);
+		String prettyStrExpectedResponse = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strExpectedResponseJson);
+		Object strResponseJson = mapper.readValue(strResponse, Object.class);
+		String prettyStrResponseJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strResponseJson);
+		assertThat(prettyStrResponseJson).contains(prettyStrExpectedResponse);
 		log.info("Actual Response matched the expected response");
 
 	}
