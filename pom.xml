@@ -22,8 +22,10 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<sonar.maven.plugin.version>3.3.0.603</sonar.maven.plugin.version>
-		<cucumber.version>1.2.4</cucumber.version>
+		<cucumber.version>1.2.5</cucumber.version>
 		<fest-assert.version>2.0M10</fest-assert.version>
+		<testng.version>6.9.10</testng.version>
+		<restassured.version>2.9.0</restassured.version>
 	</properties>
 	
 	<dependencies>
@@ -44,7 +46,7 @@
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>6.9.9</version>
+			<version>${testng.version}</version>
 			<scope>test</scope>
 		</dependency>
 	
@@ -53,7 +55,7 @@
 		<dependency>
 			<groupId>info.cukes</groupId>
 			<artifactId>cucumber-java8</artifactId>
-			<version>1.2.5</version>
+			<version>${cucumber.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>info.cukes</groupId>
@@ -80,7 +82,7 @@
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>rest-assured</artifactId>
-			<version>2.9.0</version>
+			<version>${restassured.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-logging</groupId>
@@ -91,17 +93,17 @@
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>json-path</artifactId>
-			<version>2.9.0</version>
+			<version>${restassured.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>xml-path</artifactId>
-			<version>2.9.0</version>
+			<version>${restassured.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>json-schema-validator</artifactId>
-			<version>2.9.0</version>
+			<version>${restassured.version}</version>
 		</dependency>
 		
 			
