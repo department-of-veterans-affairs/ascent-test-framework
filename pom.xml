@@ -18,22 +18,13 @@
 	<name>${project.artifactId}</name>
 	<description>Ascent Test Framework</description>
 	<url>http://maven.apache.org</url>
-	
-	<properties>
-		<java.version>1.8</java.version>
-		<sonar.maven.plugin.version>3.3.0.603</sonar.maven.plugin.version>
-		<cucumber.version>1.2.5</cucumber.version>
-		<fest-assert.version>2.0M10</fest-assert.version>
-		<testng.version>6.9.10</testng.version>
-		<restassured.version>2.9.0</restassured.version>
-	</properties>
-	
+
 	<dependencies>
 	
 		<dependency>
 			<groupId>org.dom4j</groupId>
 			<artifactId>dom4j</artifactId>
-			<version>2.0.0-RC1</version>
+			<version>2.1.0</version>
 		</dependency>
 	
 		<dependency>
@@ -56,6 +47,7 @@
 			<groupId>info.cukes</groupId>
 			<artifactId>cucumber-java8</artifactId>
 			<version>${cucumber.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>info.cukes</groupId>
@@ -110,6 +102,7 @@
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-junit47</artifactId>
 			<version>2.17</version>
+			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/net.masterthought/cucumber-reporting -->
 		<dependency>
@@ -118,7 +111,6 @@
 			<version>0.0.23</version>
 			<scope>test</scope>
 		</dependency>
-		
 		<dependency>
 	       <groupId>org.slf4j</groupId>
 	       <artifactId>slf4j-api</artifactId>
@@ -126,6 +118,7 @@
 	   	<dependency>
 	       <groupId>commons-logging</groupId>
 	       <artifactId>commons-logging</artifactId>
+	       <scope>runtime</scope>
 		</dependency>
 	    <dependency>
 	       <groupId>commons-io</groupId>
