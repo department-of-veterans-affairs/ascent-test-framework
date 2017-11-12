@@ -74,10 +74,26 @@ public class BaseStepDef {
 		invokeAPIUsingPost(baseUrl + strURL);
 		log.info("Actual Response=" + strResponse);
 	}
+	
+
+	public void invokeAPIUsingdDelete(String strURL) throws Throwable {
+		resUtil.setUpRequest(headerMap);
+		strResponse = resUtil.DELETEResponse(strURL);
+		log.info("Actual Response=" + strResponse);
+	}
+	
+	public void invokeAPIUsingDelete(String strURL, String baseUrlProperty) throws Throwable {
+		String baseUrl = restConfig.getPropertyName(baseUrlProperty);
+		invokeAPIUsingdDelete(baseUrl + strURL);
+		log.info("Actual Response=" + strResponse);
+	}
 
 	public void ValidateStatusCode(int intStatusCode) throws Throwable {
 		resUtil.ValidateStatusCode(intStatusCode);
 	}
+	
+	
+
 
 	public void checkResponseContainsValue(String strResFile) throws Throwable {
 
