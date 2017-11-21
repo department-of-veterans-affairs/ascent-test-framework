@@ -92,7 +92,12 @@ public class BaseStepDef {
 		resUtil.ValidateStatusCode(intStatusCode);
 	}
 	
-	
+	public String getBearerToken() throws Throwable {
+		String tokenUrl = restConfig.getPropertyName("tokenUrl");
+		resUtil.setUpRequest("token.Request", headerMap);
+		invokeAPIUsingPost(tokenUrl, "baseURL");
+		return strResponse;
+	}
 
 
 	public void checkResponseContainsValue(String strResFile) throws Throwable {

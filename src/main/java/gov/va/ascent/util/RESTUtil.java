@@ -117,6 +117,7 @@ public class RESTUtil {
 	}
 
 	public String POSTResponse(String serviceURL) {
+		RestAssured.useRelaxedHTTPSValidation();
 		response = given().urlEncodingEnabled(false).log().all().headers(mapReqHeader).body(jsonText).when()
 				.post(serviceURL);
 
@@ -126,6 +127,7 @@ public class RESTUtil {
 	}
 
 	public String PUTResponse(String serviceURL) {
+		RestAssured.useRelaxedHTTPSValidation();
 		response =
 				// given
 				given().urlEncodingEnabled(false).log().all().headers(mapReqHeader).body(jsonText).when()
