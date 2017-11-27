@@ -27,7 +27,7 @@ public class BaseStepDef {
 		try {
 			resUtil = new RESTUtil();
 			restConfig = new RESTConfig();
-			String environment = System.getProperty("ascent-env");
+			String environment = System.getProperty("test.env");
 			String url = "";
 			if (StringUtils.isNotBlank(environment)) {
 				url = "config/restconfig-" + environment + ".properties";
