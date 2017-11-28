@@ -20,28 +20,21 @@ public class BaseStepDef {
 	protected RESTUtil resUtil = null;
 	protected HashMap<String, String> headerMap = null;
 	protected String strResponse = null;
-	private RESTConfig restConfig = null;
+	private RESTConfigService restConfig = null;
+	private BearerTokenService bearerTokenService = null;
+
 	final Logger log = LoggerFactory.getLogger(BaseStepDef.class);
 
 	public void initREST() {
 		try {
 			resUtil = new RESTUtil();
-			restConfig = new RESTConfig();
-			String environment = System.getProperty("test.env");
-			String url = "";
-			if (StringUtils.isNotBlank(environment)) {
-				url = "config/restconfig-" + environment + ".properties";
-			} else {
-				url = "config/restconfig.properties";
-			}
-			URL urlConfigFile = RESTUtil.class.getClassLoader().getResource(url);
-
-			File strFile = new File(urlConfigFile.toURI());
-			restConfig.openPropertyFile(strFile);
+			restConfig =  RESTConfigService.getInstance();
+			bearerTokenService = BearerTokenService.getInstance();
+			
 		} catch (Exception ex) {
 			log.info("Failed:Setup of REST util failed");
 			System.out.println("Failed:Setup of REST util failed==============================");
-			// ex.printStackTrace();
+			
 		}
 	}
 
@@ -58,7 +51,8 @@ public class BaseStepDef {
 	}
 
 	public void invokeAPIUsingGet(String strURL, String baseUrlProperty) throws Throwable {
-		String baseUrl = restConfig.getPropertyName(baseUrlProperty);
+		String baseUrl = restConfig.getBaseUrlPropertyName();
+		//String baseUrl = restConfig.getPropertyName(baseUrlProperty);
 		invokeAPIUsingGet(baseUrl + strURL);
 		log.info("Actual Response=" + strResponse);
 	}
@@ -70,7 +64,11 @@ public class BaseStepDef {
 	}
 
 	public void invokeAPIUsingPost(String strURL, String baseUrlProperty) throws Throwable {
-		String baseUrl = restConfig.getPropertyName(baseUrlProperty);
+		String bearerToken = bearerTokenService.getBearerToken();
+		System.out.println("Bearer token ===================================="+bearerToken);
+		headerMap.put("Authorization", "Bearer "+bearerToken);
+		//String baseUrl = restConfig.getPropertyName(baseUrlProperty);
+		String baseUrl = restConfig.getBaseUrlPropertyName();
 		invokeAPIUsingPost(baseUrl + strURL);
 		log.info("Actual Response=" + strResponse);
 	}
@@ -83,7 +81,8 @@ public class BaseStepDef {
 	}
 	
 	public void invokeAPIUsingDelete(String strURL, String baseUrlProperty) throws Throwable {
-		String baseUrl = restConfig.getPropertyName(baseUrlProperty);
+		//String baseUrl = restConfig.getPropertyName(baseUrlProperty);
+		String baseUrl = restConfig.getBaseUrlPropertyName();
 		invokeAPIUsingdDelete(baseUrl + strURL);
 		log.info("Actual Response=" + strResponse);
 	}
@@ -92,14 +91,6 @@ public class BaseStepDef {
 		resUtil.ValidateStatusCode(intStatusCode);
 	}
 	
-	public String getBearerToken() throws Throwable {
-		String tokenUrl = restConfig.getPropertyName("tokenUrl");
-		resUtil.setUpRequest("token.Request", headerMap);
-		invokeAPIUsingPost(tokenUrl, "baseURL");
-		return strResponse;
-	}
-
-
 	public void checkResponseContainsValue(String strResFile) throws Throwable {
 
 		String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
