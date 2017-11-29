@@ -27,9 +27,9 @@ public class RESTConfigService {
 				String environment = System.getProperty("test.env");
 				String url = "";
 				if (StringUtils.isNotBlank(environment)) {
-					url = "config/restconfig-" + environment + ".properties";
+					url = "config/vetsapi-" + environment + ".properties";
 				} else {
-					url = "config/restconfig.properties";
+					url = "config/vetsapi.properties";
 				}
 				URL urlConfigFile = RESTConfigService.class.getClassLoader().getResource(url);
 
