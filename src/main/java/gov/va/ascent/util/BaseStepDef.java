@@ -20,7 +20,7 @@ public class BaseStepDef {
 	protected RESTUtil resUtil = null;
 	protected HashMap<String, String> headerMap = null;
 	protected String strResponse = null;
-	private RESTConfigService restConfig = null;
+	protected RESTConfigService restConfig = null;
 	private BearerTokenService bearerTokenService = null;
 
 	final Logger log = LoggerFactory.getLogger(BaseStepDef.class);
@@ -29,7 +29,7 @@ public class BaseStepDef {
 		try {
 			resUtil = new RESTUtil();
 			restConfig =  RESTConfigService.getInstance();
-			bearerTokenService = BearerTokenService.getInstance();
+			
 			
 		} catch (Exception ex) {
 			log.info("Failed:Setup of REST util failed");
@@ -44,49 +44,39 @@ public class BaseStepDef {
 		System.out.println(headerMap);
 	}
 
-	public void invokeAPIUsingGet(String strURL) throws Throwable {
+	public void invokeAPIUsingGet(String strURL, boolean isAuth) throws Throwable {
+		if(isAuth == true) {
+			setBearerToken();
+		}
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.GETResponse(strURL);
 		log.info("Actual Response=" + strResponse);
 	}
 
-	public void invokeAPIUsingGet(String strURL, String baseUrlProperty) throws Throwable {
-		String baseUrl = restConfig.getBaseUrlPropertyName();
-		//String baseUrl = restConfig.getPropertyName(baseUrlProperty);
-		invokeAPIUsingGet(baseUrl + strURL);
-		log.info("Actual Response=" + strResponse);
-	}
-
-	public void invokeAPIUsingPost(String strURL) throws Throwable {
+	public void invokeAPIUsingPost(String strURL, boolean isAuth) throws Throwable {
+		if(isAuth == true) {
+			setBearerToken();
+		}
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.POSTResponse(strURL);
 		log.info("Actual Response=" + strResponse);
 	}
-
-	public void invokeAPIUsingPost(String strURL, String baseUrlProperty) throws Throwable {
-		String bearerToken = bearerTokenService.getBearerToken();
-		System.out.println("Bearer token ===================================="+bearerToken);
-		headerMap.put("Authorization", "Bearer "+bearerToken);
-		//String baseUrl = restConfig.getPropertyName(baseUrlProperty);
-		String baseUrl = restConfig.getBaseUrlPropertyName();
-		invokeAPIUsingPost(baseUrl + strURL);
-		log.info("Actual Response=" + strResponse);
-	}
 	
-
-	public void invokeAPIUsingdDelete(String strURL) throws Throwable {
+	public void invokeAPIUsingDelete(String strURL, boolean isAuth ) throws Throwable {
+		if(isAuth == true) {
+			setBearerToken();
+		}
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.DELETEResponse(strURL);
 		log.info("Actual Response=" + strResponse);
 	}
-	
-	public void invokeAPIUsingDelete(String strURL, String baseUrlProperty) throws Throwable {
-		//String baseUrl = restConfig.getPropertyName(baseUrlProperty);
-		String baseUrl = restConfig.getBaseUrlPropertyName();
-		invokeAPIUsingdDelete(baseUrl + strURL);
-		log.info("Actual Response=" + strResponse);
-	}
 
+	private void setBearerToken() {
+		bearerTokenService = BearerTokenService.getInstance();
+		String bearerToken = bearerTokenService.getBearerToken();
+		headerMap.put("Authorization", "Bearer "+bearerToken);		
+	}
+	
 	public void ValidateStatusCode(int intStatusCode) throws Throwable {
 		resUtil.ValidateStatusCode(intStatusCode);
 	}
