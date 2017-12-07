@@ -1,8 +1,14 @@
-package gov.va.ascent.util;
+package gov.va.ascent.test.framework.service;
 
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gov.va.ascent.test.framework.util.RESTUtil;
+
 public class BearerTokenService {
+	final Logger log = LoggerFactory.getLogger(BearerTokenService.class);
 	
 	private static BearerTokenService instance = null;
 	private String bearerToken = "";
@@ -12,6 +18,7 @@ public class BearerTokenService {
 	}
 	
 	public static BearerTokenService getInstance()  {
+		
 		if (instance == null) {
 			System.out.println("Instantiating BearerTokenService ############################################## ");
 			instance = new BearerTokenService();

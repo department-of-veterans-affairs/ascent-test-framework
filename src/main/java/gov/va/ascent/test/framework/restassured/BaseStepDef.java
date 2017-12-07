@@ -1,20 +1,21 @@
-package gov.va.ascent.util;
+package gov.va.ascent.test.framework.restassured;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cucumber.api.Scenario;
+import gov.va.ascent.test.framework.service.BearerTokenService;
+import gov.va.ascent.test.framework.service.RESTConfigService;
+import gov.va.ascent.test.framework.util.RESTUtil;
 
 public class BaseStepDef {
 	protected RESTUtil resUtil = null;

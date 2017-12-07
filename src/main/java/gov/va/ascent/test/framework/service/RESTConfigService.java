@@ -1,4 +1,4 @@
-package gov.va.ascent.util;
+package gov.va.ascent.test.framework.service;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,11 +8,14 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RESTConfigService {
 	
 	private static RESTConfigService instance = null;
 	private Properties prop = null;
+	final Logger log = LoggerFactory.getLogger(RESTConfigService.class);
 	
 	private RESTConfigService() {
 		
@@ -20,7 +23,7 @@ public class RESTConfigService {
 	
 	public static RESTConfigService getInstance()  {
 		if (instance == null) {
-			System.out.println("Instantiating RESTConfigService ############################################## ");
+			
 			instance = new RESTConfigService();
 			InputStream input = null;
 			try {
@@ -52,9 +55,7 @@ public class RESTConfigService {
 				}
 			}
 		}
-		else {
-			System.out.println("RESTConfigService exists $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ");
-		}
+		
 		return instance;
 	}
 	
