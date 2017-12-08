@@ -1,7 +1,5 @@
 package gov.va.ascent.test.framework.selenium;
 
-import java.io.IOException;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -15,9 +13,9 @@ import org.slf4j.LoggerFactory;
 
 public class BasePage {
 	protected static WebDriver selenium;
-	static final String nameOfBrowser = System.getProperty("browser");
-	static final String webdriverPath = System.getProperty("webdriverPath");
-	final Logger log = LoggerFactory.getLogger(BasePage.class);
+	private static final String BROWSER_NAME = System.getProperty("browser");
+	private static final String WEBDRIVER_PATH = System.getProperty("webdriverPath");
+	private static final Logger log = LoggerFactory.getLogger(BasePage.class);
 	
 	
 
@@ -32,7 +30,7 @@ public class BasePage {
 
 	}
 
-	public synchronized static WebDriver getDriver() throws IOException {
+	public static synchronized WebDriver getDriver()  {
 
 		try {
 			// Chrome
@@ -45,19 +43,15 @@ public class BasePage {
 			dcChrome.setCapability("ignoreProtectedModeSettings", true);
 			dcChrome.setCapability("chrome.ensureCleanSession", true);
 
-			System.out.println("nameOfBrowser = " + nameOfBrowser);
-
-			String proj = BasePage.class.getClassLoader().getResource("").getPath();
-			String[] arr = proj.split("target");
-			if (nameOfBrowser == null || nameOfBrowser.equalsIgnoreCase("HtmlUnit")) {
+			if (BROWSER_NAME == null || "HtmlUnit".equalsIgnoreCase(BROWSER_NAME)) {
 				if (selenium == null) {
 					selenium = new HtmlUnitDriver(true);
 					selenium.manage().window().maximize();
 				}
 
 			}
-			else if (nameOfBrowser.equalsIgnoreCase("CHROME")) {
-				System.setProperty("webdriver.chrome.driver", webdriverPath);
+			else if ("CHROME".equalsIgnoreCase(BROWSER_NAME)) {
+				System.setProperty("webdriver.chrome.driver", WEBDRIVER_PATH);
 				if (selenium == null) {
 					selenium = new ChromeDriver(dcChrome);
 					selenium.manage().window().maximize();
@@ -67,8 +61,7 @@ public class BasePage {
 
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			//log.info("ERROR", "Could not launch the WebDriver selenium", e);
+			log.error("ERROR", "Could not launch the WebDriver selenium", e);
 		}
 		return selenium;
 
@@ -76,8 +69,7 @@ public class BasePage {
 
 	// Wait method used to sync for different objects
 	public static synchronized WebDriverWait getWebDriverWait(int waitMilliSeconds) {
-		WebDriverWait wait = new WebDriverWait(selenium, waitMilliSeconds);
-		return wait;
+		return new WebDriverWait(selenium, waitMilliSeconds);
 	}
 
 	public static void closeBrowser() {

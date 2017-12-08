@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -15,7 +16,7 @@ public class RESTConfigService {
 	
 	private static RESTConfigService instance = null;
 	private Properties prop = null;
-	final Logger log = LoggerFactory.getLogger(RESTConfigService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RESTConfigService.class);
 	
 	private RESTConfigService() {
 		
@@ -23,37 +24,30 @@ public class RESTConfigService {
 	
 	public static RESTConfigService getInstance()  {
 		if (instance == null) {
-			
 			instance = new RESTConfigService();
-			InputStream input = null;
-			try {
-				String environment = System.getProperty("test.env");
-				String url = "";
-				if (StringUtils.isNotBlank(environment)) {
-					url = "config/vetsapi-" + environment + ".properties";
-				} else {
-					url = "config/vetsapi.properties";
-				}
-				URL urlConfigFile = RESTConfigService.class.getClassLoader().getResource(url);
-
-				File strFile = new File(urlConfigFile.toURI());
-				input = new FileInputStream(strFile);
-				Properties properties = new Properties();
-				properties.load(input);
-				instance.prop = properties;
-				
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}	
-			finally {
-				try {
-					input.close();
-
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			String environment = System.getProperty("test.env");
+			String url = "";
+			if (StringUtils.isNotBlank(environment)) {
+				url = "config/vetsapi-" + environment + ".properties";
+			} else {
+				url = "config/vetsapi.properties";
 			}
+			URL urlConfigFile = RESTConfigService.class.getClassLoader().getResource(url);
+			try {
+				File strFile = new File(urlConfigFile.toURI());
+				try (InputStream input = new FileInputStream(strFile)) {
+					Properties properties = new Properties();
+					properties.load(input);
+					instance.prop = properties;
+					
+				} catch (IOException ex) {
+					LOGGER.error(ex.getMessage(), ex);
+				}	
+			}
+			catch(URISyntaxException uriex) {
+				LOGGER.error(uriex.getMessage(), uriex);
+			}
+			
 		}
 		
 		return instance;

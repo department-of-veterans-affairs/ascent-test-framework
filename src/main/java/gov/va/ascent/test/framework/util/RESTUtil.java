@@ -7,12 +7,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -27,24 +30,23 @@ import com.jayway.restassured.response.Response;
 
 public class RESTUtil {
 
-	protected String serviceURL;
-	final Logger log = LoggerFactory.getLogger(RESTUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
-	HashMap<String, String> mapQS = new HashMap<String, String>(); // stores
+	Map<String, String> mapQS = new HashMap<>(); // stores
 																	// query
 																	// strings
-	HashMap<String, String> mapReqHeader = new HashMap<String, String>(); // stores
+	Map<String, String> mapReqHeader = new HashMap<>(); // stores
 																			// request
 																			// headers
-	HashMap<String, String> mapResponse = new HashMap<String, String>(); // stores
+	Map<String, String> mapResponse = new HashMap<>(); // stores
 																			// expected
 																			// response
 																			// parameters
-	HashMap<String, String> mapPathParam = new HashMap<String, String>(); // stores
+	Map<String, String> mapPathParam = new HashMap<>(); // stores
 																			// Query
 																			// String
 																			// parameters
-	HashMap<String, String> mapFormParam = new HashMap<String, String>(); // stores
+	Map<String, String> mapFormParam = new HashMap<>(); // stores
 																			// Form
 	String contentType = new String();
 	String jsonText = new String();
@@ -52,7 +54,6 @@ public class RESTUtil {
 	File responseFile = null;
 	PrintStream requestStream = null;
 	Response response = null; // stores response from rest
-	String strEnv = "baseURL";
 
 	/**
 	 * Reads file content for a given file resource using URL object.
@@ -61,10 +62,10 @@ public class RESTUtil {
 	 * @param mapHeader
 	 * @throws Exception
 	 */
-	public void setUpRequest(String strRequestFile, HashMap<String, String> mapHeader) throws Exception {
+	public void setUpRequest(String strRequestFile, Map<String, String> mapHeader)  {
 		try {
 			mapReqHeader = mapHeader;
-			if (!strRequestFile.equals("NA")) {
+			if (strRequestFile != null) {
 				URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Request/" + strRequestFile);
 				requestFile = new File(urlFilePath.toURI());
 
@@ -72,9 +73,8 @@ public class RESTUtil {
 				// should use something like convertToXML function
 				jsonText = readFile(requestFile);
 			}
-		} catch (Exception ex) {
-			log.info("Unable to do setUpRequest");
-			ex.printStackTrace();
+		} catch (URISyntaxException ex) {
+			LOGGER.error("Unable to do setUpRequest", ex);
 		}
 	}
 
@@ -84,13 +84,8 @@ public class RESTUtil {
 	 * @param mapHeader
 	 * @throws Exception
 	 */
-	public void setUpRequest(HashMap<String, String> mapHeader)  {
-		try {
-			mapReqHeader = mapHeader;
-		} catch (Exception ex) {
-			log.info("Unable to do setUpRequest");
-			ex.printStackTrace();
-		}
+	public void setUpRequest(Map<String, String> mapHeader)  {
+		mapReqHeader = mapHeader;
 	}
 
 	/**
@@ -100,42 +95,30 @@ public class RESTUtil {
 	 * @param serviceURL
 	 * @return
 	 */
-	public String GETResponse(String serviceURL) {
+	public String getResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
 		response = given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
-		String json = response.asString();
-
-		return json;
+		return response.asString();
 	}
 
-	public String DELETEResponse(String serviceURL) {
-		response =
-
-				given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
-		String json = response.asString();
-		return json;
+	public String deleteResponse(String serviceURL) {
+		response = given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
+		return response.asString();
+		
+	
 	}
 
-	public String POSTResponse(String serviceURL) {
+	public String postResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
 		response = given().urlEncodingEnabled(false).log().all().headers(mapReqHeader).body(jsonText).when()
 				.post(serviceURL);
-
-		// System.out.println(response.asString());
-		String json = response.asString();
-		return json;
+		return response.asString();
 	}
 
-	public String PUTResponse(String serviceURL) {
+	public String putResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		response =
-				// given
-				given().urlEncodingEnabled(false).log().all().headers(mapReqHeader).body(jsonText).when()
-						.put(serviceURL);
-
-		// System.out.println(response.asString());
-		String json = response.asString();
-		return json;
+		response = given().urlEncodingEnabled(false).log().all().headers(mapReqHeader).body(jsonText).when().put(serviceURL);
+		return response.asString();
 	}
 
 	/**
@@ -152,53 +135,12 @@ public class RESTUtil {
 		JsonPath jsonPath = new JsonPath(json).setRoot(strRoot);
 		List<String> lstField = jsonPath.get(strField);
 		if (lstField.contains(strExpectedValue)) {
-
 			strResult = lstField.toString();
-			System.out.println("Passed:Field=" + strField + " matched the expected value=" + strExpectedValue);
-			log.info("Passed:Field=" + strField + " matched the expected value=" + strExpectedValue);
+			LOGGER.info("Passed:Field=" + strField + " matched the expected value=" + strExpectedValue);
 		} else {
 			strResult = lstField.toString();
-			log.info("Failed:Field=" + strField + " expected value=" + strExpectedValue + " and actual value="
+			LOGGER.info("Failed:Field=" + strField + " expected value=" + strExpectedValue + " and actual value="
 					+ lstField.toString());
-		}
-
-		return strResult;
-
-	}
-
-	public String parseJSON(String json, String strRoot, String strField, int strExpectedValue) {
-		String strResult = null;
-		JsonPath jsonPath = new JsonPath(json).setRoot(strRoot);
-		List<String> lstField = jsonPath.get(strField);
-		if (lstField.contains(strExpectedValue)) {
-
-			strResult = lstField.toString();
-			System.out.println("Passed:Field=" + strField + " matched the expected value=" + strExpectedValue);
-			log.info("Passed:Field=" + strField + " matched the expected value=" + strExpectedValue);
-		} else {
-			strResult = lstField.toString();
-			log.info("Failed:Field=" + strField + " expected value=" + strExpectedValue + " and actual value="
-					+ lstField.toString());
-		}
-
-		return strResult;
-	}
-
-	public String parseJSON(String json, String strField, String strExpectedValue) {
-		String strResult = null;
-		try {
-			JsonPath jsonPath = new JsonPath(json);
-			strResult = jsonPath.get(strField).toString();
-			if (strResult.contains(strExpectedValue)) {
-
-				log.info("Passed:Field=" + strField + " matched the expected value=" + strExpectedValue);
-			} else {
-				log.info("Failed:Field=" + strField + " expected value=" + strExpectedValue + " and actual value="
-						+ strResult);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			strResult = "Failed";
 		}
 		return strResult;
 	}
@@ -209,28 +151,15 @@ public class RESTUtil {
 			JsonPath jsonPath = new JsonPath(json);
 			strResult = jsonPath.get(strField).toString();
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			strResult = "Failed";
+			LOGGER.error(ex.getMessage(),ex);
 		}
 		return strResult;
 	}
 
-	public String parseJSONroot(String json, String strRoot, String strExpectedValue) {
+	public String parseJSONroot(String json, String strRoot) {
 		String strResult = null;
-		try {
-			strResult = new JsonPath(json).get(strRoot).toString();
-			if (strResult.contains(strExpectedValue)) {
-				System.out.println("Passed:Field=" + strRoot + " matched the expected value=" + strExpectedValue);
-				// this.logger.info("Passed:Field=" + strRoot
-				// + " matched the expected value=" + strExpectedValue);
-			} else {
-				log.info("Failed:Field=" + strRoot + " expected value=" + strExpectedValue + " and actual value="
-						+ strResult);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			strResult = "Failed";
-		}
+		strResult = new JsonPath(json).get(strRoot).toString();
+		 
 		return strResult;
 	}
 
@@ -240,20 +169,16 @@ public class RESTUtil {
 		XmlPath xmlPath = new XmlPath(xml);
 		String strField = xmlPath.get(strFieldName).toString();
 		if (strField.contains(strExpectedValue)) {
-			strResult = strField.toString();
-			log.info("Passed:Field=" + strFieldName + " matched the expected value=" + strExpectedValue);
-		} else {
-			strResult = strField.toString();
-			log.info("Failed:Field=" + strFieldName + " expected value=" + strExpectedValue + " and actual value="
-					+ strField.toString());
-		}
+			strResult = strField;
+			
+		} 
 		return strResult;
 	}
 
 	public String parseXML(String xml, String strFieldName) {
 		XmlPath xmlPath = new XmlPath(xml);
-		String strFieldValue = xmlPath.get(strFieldName).toString();
-		return strFieldValue;
+		return xmlPath.get(strFieldName).toString();
+		
 	}
 
 	public String parseXML(String xml, String strRoot, String strFieldName, String strExpectedValue) {
@@ -263,14 +188,8 @@ public class RESTUtil {
 
 		String strField = xmlPath.get(strFieldName);
 		if (strField.contains(strExpectedValue)) {
-			strResult = strField.toString();
-			// this.logger.info("Passed:Field=" + strField
-			// + " matched the expected value=" + strExpectedValue);
-		} else {
-			strResult = strField.toString();
-			log.info("Failed:Field=" + strField + " expected value=" + strExpectedValue + " and actual value="
-					+ strField.toString());
-		}
+			strResult = strField;
+		} 
 		return strResult;
 	}
 
@@ -283,37 +202,28 @@ public class RESTUtil {
 			OutputFormat format = OutputFormat.createPrettyPrint();
 			XMLWriter xw = new XMLWriter(sw, format);
 			xw.write(doc);
-			System.out.print(xw.toString());
 			result = sw.toString();
-		} catch (Exception ex) {
-			log.error("Unable to pretty format XML");
-			ex.printStackTrace();
+		} catch (DocumentException |IOException ex) {
+			LOGGER.error(ex.getMessage(),ex);
 		}
+		
 		return result;
 	}
 
-	public String CompareResponse(String strExpectedResponseFile, String strActualResponse) {
-		String strResult = null;
+	public boolean compareResponse(String strExpectedResponseFile, String strActualResponse) {
+		boolean isEqual = false;
 		try {
 			URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Response/" + strExpectedResponseFile);
 			responseFile = new File(urlFilePath.toURI());
 			String strExpectedResponse = readFile(responseFile);
 
 			if (strActualResponse.contains(strExpectedResponse)) {
-				log.info("Passed:Actual response matched the expected response file=" + strExpectedResponseFile);
-				strResult = "Passed";
-			} else {
-				System.out.println("Failed:Actual response did not matched the expected response file");
-				log.info("Failed:Actual response =" + strActualResponse + " and \n expected response="
-						+ strExpectedResponse);
-				strResult = "Failed";
+				isEqual = true;
 			}
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			strResult = "Failed";
+		} catch (URISyntaxException ex) {
+			LOGGER.error(ex.getMessage(),ex);
 		}
-		return strResult;
+		return isEqual;
 
 	}
 
@@ -323,45 +233,34 @@ public class RESTUtil {
 			URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Response/" + filename);
 			File strFilePath = new File(urlFilePath.toURI());
 			strExpectedResponse = FileUtils.readFileToString(strFilePath, "ASCII");
-		} catch (Exception ex) {
-			strExpectedResponse = "";
-			ex.printStackTrace();
+		} catch (URISyntaxException |IOException ex) {
+			LOGGER.error(ex.getMessage(), ex);
 		}
-
+		
 		return strExpectedResponse;
 	}
 
 	protected String readFile(File filename) {
 		String content = null;
-		// File file = new File(filename); //for ex foo.txt
+		
 		File file = filename;
-		try {
-			FileReader reader = new FileReader(file);
-			char[] chars = new char[(int) file.length()];
-			reader.read(chars);
-			content = new String(chars);
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		
+		 try (FileReader reader = new FileReader(file)) {
+				char[] chars = new char[(int) file.length()];
+				reader.read(chars);
+				content = new String(chars);
+		 }
+		
+		catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 		return content;
+		
 	}
 
-	@SuppressWarnings("deprecation")
-	public void ValidateStatusCode(int intStatusCode) {
-
+	public void validateStatusCode(int intStatusCode) {
 		int actStatusCode = response.getStatusCode();
-		try {
-			Assert.assertEquals(intStatusCode, actStatusCode);
-			log.info("Passed:Response status code matched the expected value=" + intStatusCode);
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-
-			log.info("Failed:Expected status code=" + intStatusCode + " did not match actual status code="
-					+ actStatusCode);
-		}
-
+		Assert.assertEquals(intStatusCode, actStatusCode);
 	}
 
 }
