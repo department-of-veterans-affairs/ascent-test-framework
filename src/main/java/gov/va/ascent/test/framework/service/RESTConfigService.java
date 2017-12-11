@@ -33,17 +33,14 @@ public class RESTConfigService {
 				url = "config/vetsapi.properties";
 			}
 			URL urlConfigFile = RESTConfigService.class.getClassLoader().getResource(url);
-			try {
-				File strFile = new File(urlConfigFile.toURI());
-				try (InputStream input = new FileInputStream(strFile)) {
-					Properties properties = new Properties();
-					properties.load(input);
-					instance.prop = properties;
-					
-				} catch (IOException ex) {
-					LOGGER.error(ex.getMessage(), ex);
-				}	
-			}
+			try (InputStream input = new FileInputStream(new File(urlConfigFile.toURI()))) {
+				Properties properties = new Properties();
+				properties.load(input);
+				instance.prop = properties;
+				
+			} catch (IOException ex) {
+				LOGGER.error(ex.getMessage(), ex);
+			}	
 			catch(URISyntaxException uriex) {
 				LOGGER.error(uriex.getMessage(), uriex);
 			}

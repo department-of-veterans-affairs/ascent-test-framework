@@ -32,22 +32,9 @@ public class RESTUtil {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
-	Map<String, String> mapQS = new HashMap<>(); // stores
-																	// query
-																	// strings
-	Map<String, String> mapReqHeader = new HashMap<>(); // stores
+	private Map<String, String> mapReqHeader = new HashMap<>(); // stores
 																			// request
 																			// headers
-	Map<String, String> mapResponse = new HashMap<>(); // stores
-																			// expected
-																			// response
-																			// parameters
-	Map<String, String> mapPathParam = new HashMap<>(); // stores
-																			// Query
-																			// String
-																			// parameters
-	Map<String, String> mapFormParam = new HashMap<>(); // stores
-																			// Form
 	String contentType = new String();
 	String jsonText = new String();
 	File requestFile = null;
@@ -104,8 +91,6 @@ public class RESTUtil {
 	public String deleteResponse(String serviceURL) {
 		response = given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
 		return response.asString();
-		
-	
 	}
 
 	public String postResponse(String serviceURL) {
@@ -242,15 +227,12 @@ public class RESTUtil {
 
 	protected String readFile(File filename) {
 		String content = null;
-		
 		File file = filename;
-		
-		 try (FileReader reader = new FileReader(file)) {
+		try (FileReader reader = new FileReader(file)) {
 				char[] chars = new char[(int) file.length()];
 				reader.read(chars);
 				content = new String(chars);
-		 }
-		
+		}
 		catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}

@@ -16,18 +16,13 @@ public class BasePage {
 	private static final String BROWSER_NAME = System.getProperty("browser");
 	private static final String WEBDRIVER_PATH = System.getProperty("webdriverPath");
 	private static final Logger log = LoggerFactory.getLogger(BasePage.class);
-	
-	
 
 	public BasePage(WebDriver selenium) {
 		BasePage.selenium = selenium;
-
 	}
 
 	public void initialize(Object o) {
-
 		PageFactory.initElements(selenium, o);
-
 	}
 
 	public static synchronized WebDriver getDriver()  {
