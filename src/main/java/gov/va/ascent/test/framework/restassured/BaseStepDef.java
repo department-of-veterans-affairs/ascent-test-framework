@@ -4,6 +4,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public class BaseStepDef {
 		String strResponseFile = null;
 		try {
 			strResponseFile = "target/TestResults/Response/" + scenario.getName() + ".Response";
-			FileUtils.writeStringToFile(new File(strResponseFile), strResponse);
+			FileUtils.writeStringToFile(new File(strResponseFile), strResponse, StandardCharsets.UTF_8);
 		} catch (Exception ex) {
 			LOGGER.error("Failed:Unable to write response to a file", ex);
 			

@@ -84,25 +84,25 @@ public class RESTUtil {
 	 */
 	public String getResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		response = given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
+		response = given().headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
 		return response.asString();
 	}
 
 	public String deleteResponse(String serviceURL) {
-		response = given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
+		response = given().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
 		return response.asString();
 	}
 
 	public String postResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		response = given().urlEncodingEnabled(false).log().all().headers(mapReqHeader).body(jsonText).when()
+		response = given().urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when()
 				.post(serviceURL);
 		return response.asString();
 	}
 
 	public String putResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		response = given().urlEncodingEnabled(false).log().all().headers(mapReqHeader).body(jsonText).when().put(serviceURL);
+		response = given().urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when().put(serviceURL);
 		return response.asString();
 	}
 
