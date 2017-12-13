@@ -19,7 +19,7 @@ public class BearerTokenService {
 		if (instance == null) {
 			instance = new BearerTokenService();
 			RESTConfigService restConfig = RESTConfigService.getInstance();
-			String baseUrl = restConfig.getBaseUrlPropertyName();
+			String baseUrl = restConfig.getPropertyName("baseURL", true);
 			String tokenUrl = restConfig.getPropertyName("tokenUrl");
 			Map<String, String> headerMap = new HashMap<>();
 			headerMap.put("Accept", "application/json;v=3");

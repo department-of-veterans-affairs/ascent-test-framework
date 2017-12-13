@@ -51,20 +51,18 @@ public class RESTConfigService {
 	}
 	
 	public String getPropertyName(String pName) {
-		String value = prop.getProperty(pName);
-		if (null == value) {
-			value = "";
-		}
-		return value;
+		return getPropertyName(pName, false);
 	}
 	
-	public String getBaseUrlPropertyName() {
-		String baseUrl = System.getProperty("baseURL");
+	public String getPropertyName(String pName, boolean isCheckSystemProp) {
 		String value = "";
-		if (StringUtils.isNotBlank(baseUrl)) {
-			value = baseUrl;
+		if(isCheckSystemProp) {
+			value = System.getProperty(pName);
+			if (StringUtils.isBlank(value)) {
+				value = prop.getProperty(pName);
+			}
 		} else {
-			value = prop.getProperty("baseURL");
+			value = prop.getProperty(pName);
 		}
 		return value;
 	}
