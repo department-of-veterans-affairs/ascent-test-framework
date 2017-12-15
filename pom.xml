@@ -111,7 +111,6 @@
 		    <version>2.52.0</version>
 		</dependency>
 				
-			
 		<dependency>
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-junit47</artifactId>
@@ -126,13 +125,20 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-	       <groupId>org.slf4j</groupId>
-	       <artifactId>slf4j-api</artifactId>
-	    </dependency>
-	   	<dependency>
-	       <groupId>commons-logging</groupId>
-	       <artifactId>commons-logging</artifactId>
-	       <scope>runtime</scope>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
 		</dependency>
 	    <dependency>
 	       <groupId>commons-io</groupId>
@@ -143,23 +149,6 @@
 
 	<build>
 		<plugins>
-			<!-- Maven Compiler plug-in -->
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-					<resources>
-						<resource>
-							<directory>src/test/resources</directory>
-							<includes>
-								<include>**/*.*</include>
-							</includes>
-						</resource>
-					</resources>
-				</configuration>
-			</plugin>
 			<!-- The skip property allows to skip the execution of the Spring Boot maven plugin altogether -->
 	        <plugin>
 	            <groupId>org.springframework.boot</groupId>

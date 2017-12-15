@@ -27,6 +27,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
 
 public class RESTUtil {
 
@@ -53,12 +54,19 @@ public class RESTUtil {
 		try {
 			mapReqHeader = mapHeader;
 			if (strRequestFile != null) {
+				LOGGER.info("Request File {}", strRequestFile);
 				URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Request/" + strRequestFile);
-				requestFile = new File(urlFilePath.toURI());
-
-				// Note - Enhance the code so if Header.Accept is xml, then it
-				// should use something like convertToXML function
-				jsonText = readFile(requestFile);
+				if (urlFilePath == null) {
+					LOGGER.error("#####################################");
+					LOGGER.error("Requested File Doesn't Exist: {}", "Request/" + strRequestFile);
+					LOGGER.error("#####################################");
+					System.exit(500);
+				} else {
+					requestFile = new File(urlFilePath.toURI());
+					// Note - Enhance the code so if Header.Accept is xml, then it
+					// should use something like convertToXML function
+					jsonText = readFile(requestFile);
+				}
 			}
 		} catch (URISyntaxException ex) {
 			LOGGER.error("Unable to do setUpRequest", ex);
@@ -84,25 +92,42 @@ public class RESTUtil {
 	 */
 	public String getResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		response = given().headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
+		
+		RequestSpecification requestSpecification = given();
+		if (LOGGER.isDebugEnabled()) {
+			requestSpecification = given().log().all();
+		} 
+		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
 		return response.asString();
 	}
 
 	public String deleteResponse(String serviceURL) {
-		response = given().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
+		RequestSpecification requestSpecification = given();
+		if (LOGGER.isDebugEnabled()) {
+			requestSpecification = given().log().all();
+		} 
+		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
 		return response.asString();
 	}
 
 	public String postResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		response = given().urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when()
+		RequestSpecification requestSpecification = given();
+		if (LOGGER.isDebugEnabled()) {
+			requestSpecification = given().log().all();
+		} 
+		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when()
 				.post(serviceURL);
 		return response.asString();
 	}
 
 	public String putResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		response = given().urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when().put(serviceURL);
+		RequestSpecification requestSpecification = given();
+		if (LOGGER.isDebugEnabled()) {
+			requestSpecification = given().log().all();
+		} 
+		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when().put(serviceURL);
 		return response.asString();
 	}
 
@@ -215,9 +240,17 @@ public class RESTUtil {
 	public String readExpectedResponse(String filename) {
 		String strExpectedResponse = null;
 		try {
+			LOGGER.info("Response File: {}", filename);
 			URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Response/" + filename);
-			File strFilePath = new File(urlFilePath.toURI());
-			strExpectedResponse = FileUtils.readFileToString(strFilePath, "ASCII");
+			if (urlFilePath == null) {
+				LOGGER.error("#####################################");
+				LOGGER.error("Requested File Doesn't Exist: {}", "Response/" + filename);
+				LOGGER.error("#####################################");
+				System.exit(500);
+			} else {
+				File strFilePath = new File(urlFilePath.toURI());
+				strExpectedResponse = FileUtils.readFileToString(strFilePath, "ASCII");
+			}
 		} catch (URISyntaxException |IOException ex) {
 			LOGGER.error(ex.getMessage(), ex);
 		}
