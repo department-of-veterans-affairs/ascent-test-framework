@@ -57,10 +57,7 @@ public class RESTUtil {
 				LOGGER.info("Request File {}", strRequestFile);
 				URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Request/" + strRequestFile);
 				if (urlFilePath == null) {
-					LOGGER.error("#####################################");
 					LOGGER.error("Requested File Doesn't Exist: {}", "Request/" + strRequestFile);
-					LOGGER.error("#####################################");
-					System.exit(500);
 				} else {
 					requestFile = new File(urlFilePath.toURI());
 					// Note - Enhance the code so if Header.Accept is xml, then it
@@ -220,33 +217,13 @@ public class RESTUtil {
 		return result;
 	}
 
-	public boolean compareResponse(String strExpectedResponseFile, String strActualResponse) {
-		boolean isEqual = false;
-		try {
-			URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Response/" + strExpectedResponseFile);
-			responseFile = new File(urlFilePath.toURI());
-			String strExpectedResponse = readFile(responseFile);
-
-			if (strActualResponse.contains(strExpectedResponse)) {
-				isEqual = true;
-			}
-		} catch (URISyntaxException ex) {
-			LOGGER.error(ex.getMessage(),ex);
-		}
-		return isEqual;
-
-	}
-
 	public String readExpectedResponse(String filename) {
 		String strExpectedResponse = null;
 		try {
 			LOGGER.info("Response File: {}", filename);
 			URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Response/" + filename);
 			if (urlFilePath == null) {
-				LOGGER.error("#####################################");
 				LOGGER.error("Requested File Doesn't Exist: {}", "Response/" + filename);
-				LOGGER.error("#####################################");
-				System.exit(500);
 			} else {
 				File strFilePath = new File(urlFilePath.toURI());
 				strExpectedResponse = FileUtils.readFileToString(strFilePath, "ASCII");
