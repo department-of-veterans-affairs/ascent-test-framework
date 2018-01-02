@@ -1,14 +1,14 @@
 package gov.va.ascent.test.framework.restassured;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.commons.io.FileUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +71,9 @@ public class BaseStepDef {
 		resUtil.validateStatusCode(intStatusCode);
 	}
 	
-	public void checkResponseContainsValue(String strResFile)  {
+	
+	public boolean compareExpectedResponseWithActual(String strResFile)  {
+		boolean isMatch = false;
 		try {
 			String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
 			ObjectMapper mapper = new ObjectMapper();
@@ -79,13 +81,37 @@ public class BaseStepDef {
 			String prettyStrExpectedResponse = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strExpectedResponseJson);
 			Object strResponseJson = mapper.readValue(strResponse, Object.class);
 			String prettyStrResponseJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strResponseJson);
-			assertThat(prettyStrResponseJson).contains(prettyStrExpectedResponse);
+			isMatch = prettyStrResponseJson.contains(prettyStrExpectedResponse);
 		}
 		catch (IOException ioe) {
 			LOGGER.error(ioe.getMessage(), ioe);
 		}
+		return isMatch;
 	}
-
+	
+	/**
+	 * Does an assertion per line. Reads the expected response file. Loops through
+	 * each of this file and does an assertion to see if it exists in the actual
+	 * service response.
+	 *
+	 * If the actual response contains a lot of information that we can ignore, we
+	 * can just target the lines we are concern with.
+	 *
+	 * @param responseFileName
+	 *            The response file.
+	 */
+	public boolean compareExpectedResponseWithActualByRow(String strResFile) {
+		String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
+		StringTokenizer tokenizer = new StringTokenizer(strExpectedResponse, "\n");
+		while (tokenizer.hasMoreTokens()) {
+			String responseLine = tokenizer.nextToken();
+			if (!strResponse.contains(responseLine)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public void postProcess(Scenario scenario) {
 		String strResponseFile = null;
 		try {

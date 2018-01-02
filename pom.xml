@@ -10,7 +10,6 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>gov.va.ascent</groupId>
 	<artifactId>ascent-test-framework</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
