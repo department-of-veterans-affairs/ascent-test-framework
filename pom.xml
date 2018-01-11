@@ -143,7 +143,12 @@
 	       <groupId>commons-io</groupId>
 		   <artifactId>commons-io</artifactId>
 	    </dependency>
-	    
+	    <!-- -YamlDependency -->
+	    <dependency>
+       <groupId>org.yaml</groupId>
+           <artifactId>snakeyaml</artifactId>
+           <version>1.7</version>
+      </dependency>
 	</dependencies>
 
 	<build>
