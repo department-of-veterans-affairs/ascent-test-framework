@@ -145,9 +145,8 @@
 	    </dependency>
 	    <!-- -YamlDependency -->
 	    <dependency>
-       <groupId>org.yaml</groupId>
+       	   <groupId>org.yaml</groupId>
            <artifactId>snakeyaml</artifactId>
-           <version>1.7</version>
       </dependency>
 	</dependencies>
 
