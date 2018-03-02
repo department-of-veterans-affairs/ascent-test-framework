@@ -13,50 +13,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTConfigService {
-	
+
 	private static RESTConfigService instance = null;
 	private Properties prop = null;
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTConfigService.class);
-	
+
 	private RESTConfigService() {
-		
+
 	}
-	
-	public static RESTConfigService getInstance()  {
+
+	public static RESTConfigService getInstance() {
 		if (instance == null) {
 			instance = new RESTConfigService();
 			String environment = System.getProperty("test.env");
 			String url = "";
 			if (StringUtils.isNotBlank(environment)) {
-				url = "config/vetsapi-" + environment + ".properties";
+				url = "config/vetservices-" + environment + ".properties";
 			} else {
-				url = "config/vetsapi.properties";
+				url = "config/vetservices.properties";
 			}
 			URL urlConfigFile = RESTConfigService.class.getClassLoader().getResource(url);
 			try (InputStream input = new FileInputStream(new File(urlConfigFile.toURI()))) {
 				Properties properties = new Properties();
 				properties.load(input);
 				instance.prop = properties;
-				
+
 			} catch (IOException ex) {
 				LOGGER.error(ex.getMessage(), ex);
-			}	
-			catch(URISyntaxException uriex) {
+			} catch (URISyntaxException uriex) {
 				LOGGER.error(uriex.getMessage(), uriex);
 			}
-			
+
 		}
-		
+
 		return instance;
 	}
-	
+
 	public String getPropertyName(String pName) {
 		return getPropertyName(pName, false);
 	}
-	
+
 	public String getPropertyName(String pName, boolean isCheckSystemProp) {
 		String value = "";
-		if(isCheckSystemProp) {
+		if (isCheckSystemProp) {
 			value = System.getProperty(pName);
 			if (StringUtils.isBlank(value)) {
 				value = prop.getProperty(pName);
@@ -66,5 +65,5 @@ public class RESTConfigService {
 		}
 		return value;
 	}
-	
+
 }
