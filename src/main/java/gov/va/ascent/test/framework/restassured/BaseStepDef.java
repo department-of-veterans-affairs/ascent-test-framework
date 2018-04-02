@@ -21,10 +21,10 @@ import gov.va.ascent.test.framework.service.RESTConfigService;
 import gov.va.ascent.test.framework.util.RESTUtil;
 
 public class BaseStepDef {
-	public RESTUtil resUtil = null;
-	public Map<String, String> headerMap = null;
-	public String strResponse = null;
-	public RESTConfigService restConfig = null;
+	protected RESTUtil resUtil = null;
+	protected Map<String, String> headerMap = null;
+	protected String strResponse = null;
+	protected RESTConfigService restConfig = null;
 	private BearerTokenService bearerTokenService = null;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BaseStepDef.class);
