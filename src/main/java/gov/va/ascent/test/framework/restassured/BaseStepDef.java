@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.FileUtils;
@@ -30,31 +31,31 @@ public class BaseStepDef {
 
 	public void initREST() {
 		resUtil = new RESTUtil();
-		restConfig =  RESTConfigService.getInstance();
+		restConfig = RESTConfigService.getInstance();
 	}
 
-	public void passHeaderInformation(Map<String, String> tblHeader)  {
+	public void passHeaderInformation(Map<String, String> tblHeader) {
 		headerMap = new HashMap<>(tblHeader);
 	}
 
-	public void invokeAPIUsingGet(String strURL, boolean isAuth)  {
-		if(isAuth) {
+	public void invokeAPIUsingGet(String strURL, boolean isAuth) {
+		if (isAuth) {
 			setBearerToken();
 		}
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.getResponse(strURL);
 	}
 
-	public void invokeAPIUsingPost(String strURL, boolean isAuth)  {
-		if(isAuth) {
+	public void invokeAPIUsingPost(String strURL, boolean isAuth) {
+		if (isAuth) {
 			setBearerToken();
 		}
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponse(strURL);
 	}
-	
-	public void invokeAPIUsingDelete(String strURL, boolean isAuth )  {
-		if(isAuth) {
+
+	public void invokeAPIUsingDelete(String strURL, boolean isAuth) {
+		if (isAuth) {
 			setBearerToken();
 		}
 		resUtil.setUpRequest(headerMap);
@@ -64,31 +65,61 @@ public class BaseStepDef {
 	private void setBearerToken() {
 		bearerTokenService = BearerTokenService.getInstance();
 		String bearerToken = bearerTokenService.getBearerToken();
-		headerMap.put("Authorization", "Bearer "+bearerToken);		
+		headerMap.put("Authorization", "Bearer " + bearerToken);
 	}
-	
-	public void validateStatusCode(int intStatusCode)  {
+
+	public void validateStatusCode(int intStatusCode) {
 		resUtil.validateStatusCode(intStatusCode);
 	}
 	
-	
-	public boolean compareExpectedResponseWithActual(String strResFile)  {
+	/**
+	 * Loads JSON property file that contains header values in to header map. Method parameter user contains environment and user name delimited by -.
+	 * The method parses the environment and user name and loads JSON header file.
+	 * @param user Contains the environment and user name delimited by - for eg: ci-janedoe
+	 * @throws IOException
+	 */
+	public void setHeader(String user) throws IOException {
+		Map<String, String> tblHeader = new HashMap<>();
+		String userList[] = user.trim().split(",");
+		for (String userValue : userList) {
+			String testEnv = System.getProperty("test.env");
+			if (testEnv == null) {
+				testEnv = "ci";
+			}
+			if(userValue.toLowerCase().startsWith(testEnv.toLowerCase())) {
+				String values[] = userValue.split("-");
+
+				String env = values[0];
+				String userName = values[1];
+				String url = "users/" + env + "/" + userName + ".properties";
+				Properties properties = new Properties();
+				properties.load(RESTConfigService.class.getClassLoader().getResourceAsStream(url));
+				for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+					tblHeader.put((String) entry.getKey(), (String) entry.getValue());
+				}
+				break;
+			}
+		}
+		passHeaderInformation(tblHeader);
+	}
+
+	public boolean compareExpectedResponseWithActual(String strResFile) {
 		boolean isMatch = false;
 		try {
 			String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
 			ObjectMapper mapper = new ObjectMapper();
 			Object strExpectedResponseJson = mapper.readValue(strExpectedResponse, Object.class);
-			String prettyStrExpectedResponse = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strExpectedResponseJson);
+			String prettyStrExpectedResponse = mapper.writerWithDefaultPrettyPrinter()
+					.writeValueAsString(strExpectedResponseJson);
 			Object strResponseJson = mapper.readValue(strResponse, Object.class);
 			String prettyStrResponseJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strResponseJson);
 			isMatch = prettyStrResponseJson.contains(prettyStrExpectedResponse);
-		}
-		catch (IOException ioe) {
+		} catch (IOException ioe) {
 			LOGGER.error(ioe.getMessage(), ioe);
 		}
 		return isMatch;
 	}
-	
+
 	/**
 	 * Does an assertion per line. Reads the expected response file. Loops through
 	 * each of this file and does an assertion to see if it exists in the actual
@@ -111,7 +142,7 @@ public class BaseStepDef {
 		}
 		return true;
 	}
-	
+
 	public void postProcess(Scenario scenario) {
 		String strResponseFile = null;
 		try {
@@ -119,9 +150,10 @@ public class BaseStepDef {
 			FileUtils.writeStringToFile(new File(strResponseFile), strResponse, StandardCharsets.UTF_8);
 		} catch (Exception ex) {
 			LOGGER.error("Failed:Unable to write response to a file", ex);
-			
+
 		}
 		scenario.write(scenario.getStatus());
 	}
+	
 
 }
