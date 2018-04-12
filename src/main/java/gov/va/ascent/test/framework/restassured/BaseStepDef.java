@@ -42,14 +42,21 @@ public class BaseStepDef {
 		if (isAuth) {
 			setBearerToken();
 		}
+		invokeAPIUsingGet(strURL);
+	}
+
+	public void invokeAPIUsingGet(String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.getResponse(strURL);
 	}
-
 	public void invokeAPIUsingPost(String strURL, boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
 		}
+		invokeAPIUsingPost(strURL);
+	}
+	
+	public void invokeAPIUsingPost(String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponse(strURL);
 	}
@@ -58,6 +65,9 @@ public class BaseStepDef {
 		if (isAuth) {
 			setBearerToken();
 		}
+		invokeAPIUsingDelete(strURL);
+	}
+	public void invokeAPIUsingDelete(String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.deleteResponse(strURL);
 	}

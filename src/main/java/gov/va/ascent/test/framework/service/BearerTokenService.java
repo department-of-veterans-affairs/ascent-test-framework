@@ -18,17 +18,25 @@ public class BearerTokenService {
 		
 		if (instance == null) {
 			instance = new BearerTokenService();
-			RESTConfigService restConfig = RESTConfigService.getInstance();
-			String baseUrl = restConfig.getPropertyName("baseURL", true);
-			String tokenUrl = restConfig.getPropertyName("tokenUrl");
-			Map<String, String> headerMap = new HashMap<>();
-			headerMap.put("Accept", "application/json;v=3");
-			headerMap.put("Content-Type", "application/json;v=3; charset=ISO-8859-1");
-			RESTUtil restUtil = new RESTUtil();
-			restUtil.setUpRequest("token.Request", headerMap);
-			instance.bearerToken = restUtil.postResponse(baseUrl + tokenUrl);
+			instance.bearerToken = getToken("token.Request");
 		}
 		return instance;
+	}
+	
+	public static String getTokenByHeaderFile(String headerFile)  {
+		return getToken(headerFile);
+	}
+	
+	public static String getToken(String headerFile)  {
+		RESTConfigService restConfig = RESTConfigService.getInstance();
+		String baseUrl = restConfig.getPropertyName("baseURL", true);
+		String tokenUrl = restConfig.getPropertyName("tokenUrl");
+		Map<String, String> headerMap = new HashMap<>();
+		headerMap.put("Accept", "application/json;v=3");
+		headerMap.put("Content-Type", "application/json;v=3; charset=ISO-8859-1");
+		RESTUtil restUtil = new RESTUtil();
+		restUtil.setUpRequest(headerFile, headerMap);
+		return restUtil.postResponse(baseUrl + tokenUrl);
 	}
 	
 	public String getBearerToken() {
