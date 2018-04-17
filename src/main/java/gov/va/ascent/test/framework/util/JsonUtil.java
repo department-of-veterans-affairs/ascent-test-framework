@@ -12,7 +12,10 @@ import com.jayway.restassured.path.json.JsonPath;
 public class JsonUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JsonUtil.class);
 
-	// --------------------------------------------------------------------------------
+	private JsonUtil() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	public static void println(final String name, final List<?> objects) {
 		LOGGER.info(name + ": " + objects);
 		final int n = objects.size();
@@ -21,8 +24,11 @@ public class JsonUtil {
 		}
 	}
 
-	// --------------------------------------------------------------------------------
 	public static final List<Object> getList(final String json, final String path) {
+		return JsonPath.with(json).get(path);
+	}
+
+	public static final String getString(final String json, final String path) {
 		return JsonPath.with(json).get(path);
 	}
 
@@ -54,7 +60,7 @@ public class JsonUtil {
 	public static final List<Map<String, Object>> assertMapListHasValue(final Map<String, Object> map,
 			final String name) {
 		final List<Map<String, Object>> list = getMapList(map, name);
-		Assert.assertNotNull("JSON map list " + name + ": is null.", list);
+		Assert.assertNotNull(list);
 		return list;
 	}
 
@@ -76,7 +82,7 @@ public class JsonUtil {
 
 	public static final String assertStringHasValue(final Map<String, Object> map, final String name) {
 		final String value = getString(map, name);
-		Assert.assertNotNull("JSON variable " + name + ": is null.", value);
+		Assert.assertNotNull(value);
 		assertVariable(name, value.trim().length() > 0, "cannot be an empty string.");
 		return value;
 	}
@@ -100,19 +106,19 @@ public class JsonUtil {
 
 	public static final List<Object> assertListHasValue(final String json, final String path) {
 		final List<Object> list = getList(json, path);
-		Assert.assertNotNull("JSON list " + path + ": is null.", list);
+		Assert.assertNotNull(list);
 		return list;
 	}
 
 	public static final List<Map<String, Object>> assertMapListHasValue(final String json, final String path) {
 		final List<Map<String, Object>> list = getMapList(json, path);
-		Assert.assertNotNull("JSON map list " + path + ": is null.", list);
+		Assert.assertNotNull(list);
 		return list;
 	}
 
 	public static final List<Map<String, Object>> assertMapListIsNull(final String json, final String path) {
 		final List<Map<String, Object>> list = getMapList(json, path);
-		Assert.assertNull("JSON map list " + path + ": is not null.", list);
+		Assert.assertNull(list);
 		return list;
 	}
 
@@ -141,51 +147,8 @@ public class JsonUtil {
 	}
 
 	public static final void assertObjectDoesNotExist(String jsonRequest, String path) {
-		try {
-			Object value = JsonPath.with(jsonRequest).get(path);
-			Assert.assertNull("json should not contain: " + path + ".", value);
-		} catch (IllegalArgumentException e) {
-			// Note: This occurs if the parent object also does not exist.
-		}
-	}
-
-	public static void validateMessages(final String json, final String key, final String severity, final String text) {
-		final List<Map<String, Object>> messages = assertMapListHasValue(json, "messages");
-		String name = "";
-		boolean errorExists = false;
-		try {
-			println("messages", messages);
-			for (final Map<String, Object> message : messages) {
-				final String k = assertStringHasValue(message, name = "key");
-				final String s = assertStringHasValue(message, name = "severity");
-				final String t = assertStringHasValue(message, name = "text");
-				if (k.equals(key) && s.equals(severity) && t.equals(text)) {
-					errorExists = true;
-					break;
-				}
-			}
-		} catch (final ClassCastException e) {
-			assertVariable(name, false, e.getMessage());
-		} catch (final NullPointerException e) {
-			assertVariable(name, false, e.getMessage());
-		}
-
-		assertVariable("messages", errorExists, getErrorMessage(messages, key, severity, text));
-	}
-
-	private static String getErrorMessage(final List<Map<String, Object>> messages, final String key,
-			final String severity, final String text) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("expecting: \n");
-		builder.append("  * key=\"" + key + "\", severity=\"" + severity + "\", text=\"" + text + "\"\n");
-		builder.append("Response contains:");
-		for (final Map<String, Object> message : messages) {
-			final String k = (String) message.get("key");
-			final String s = (String) message.get("severity");
-			final String t = (String) message.get("text");
-			builder.append("\n  * key=\"" + k + "\", severity=\"" + s + "\", text=\"" + t + "\"");
-		}
-		return builder.toString();
+		Object value = JsonPath.with(jsonRequest).get(path);
+		Assert.assertNull("json should not contain: " + path + ".", value);
 	}
 
 }

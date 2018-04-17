@@ -9,25 +9,25 @@ public class BearerTokenService {
 
 	private static BearerTokenService instance = null;
 	private String bearerToken = "";
-	
+
 	private BearerTokenService() {
-		
+
 	}
-	
-	public static BearerTokenService getInstance()  {
-		
+
+	public static BearerTokenService getInstance() {
+
 		if (instance == null) {
 			instance = new BearerTokenService();
 			instance.bearerToken = getToken("token.Request");
 		}
 		return instance;
 	}
-	
-	public static String getTokenByHeaderFile(String headerFile)  {
+
+	public static String getTokenByHeaderFile(String headerFile) {
 		return getToken(headerFile);
 	}
-	
-	public static String getToken(String headerFile)  {
+
+	public static String getToken(String headerFile) {
 		RESTConfigService restConfig = RESTConfigService.getInstance();
 		String baseUrl = restConfig.getPropertyName("baseURL", true);
 		String tokenUrl = restConfig.getPropertyName("tokenUrl");
@@ -38,10 +38,9 @@ public class BearerTokenService {
 		restUtil.setUpRequest(headerFile, headerMap);
 		return restUtil.postResponse(baseUrl + tokenUrl);
 	}
-	
+
 	public String getBearerToken() {
 		return bearerToken;
 	}
-	
 
 }
