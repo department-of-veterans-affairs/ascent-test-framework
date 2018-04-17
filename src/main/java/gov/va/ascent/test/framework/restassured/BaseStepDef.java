@@ -42,6 +42,10 @@ public class BaseStepDef {
 		if (isAuth) {
 			setBearerToken();
 		}
+		invokeAPIUsingGet(strURL);
+	}
+
+	public void invokeAPIUsingGet(String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.getResponse(strURL);
 	}
@@ -50,6 +54,10 @@ public class BaseStepDef {
 		if (isAuth) {
 			setBearerToken();
 		}
+		invokeAPIUsingPost(strURL);
+	}
+
+	public void invokeAPIUsingPost(String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponse(strURL);
 	}
@@ -58,6 +66,10 @@ public class BaseStepDef {
 		if (isAuth) {
 			setBearerToken();
 		}
+		invokeAPIUsingDelete(strURL);
+	}
+
+	public void invokeAPIUsingDelete(String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.deleteResponse(strURL);
 	}
@@ -71,23 +83,27 @@ public class BaseStepDef {
 	public void validateStatusCode(int intStatusCode) {
 		resUtil.validateStatusCode(intStatusCode);
 	}
-	
+
 	/**
-	 * Loads JSON property file that contains header values in to header map. Method parameter user contains environment and user name delimited by -.
-	 * The method parses the environment and user name and loads JSON header file.
-	 * @param user Contains the environment and user name delimited by - for eg: ci-janedoe
+	 * Loads JSON property file that contains header values in to header map. Method
+	 * parameter user contains environment and user name delimited by -. The method
+	 * parses the environment and user name and loads JSON header file.
+	 * 
+	 * @param user
+	 *            Contains the environment and user name delimited by - for eg:
+	 *            ci-janedoe
 	 * @throws IOException
 	 */
 	public void setHeader(String user) throws IOException {
 		Map<String, String> tblHeader = new HashMap<>();
-		String userList[] = user.trim().split(",");
+		String[] userList = user.trim().split(",");
 		for (String userValue : userList) {
 			String testEnv = System.getProperty("test.env");
 			if (testEnv == null) {
 				testEnv = "ci";
 			}
-			if(userValue.toLowerCase().startsWith(testEnv.toLowerCase())) {
-				String values[] = userValue.split("-");
+			if (userValue.toLowerCase().startsWith(testEnv.toLowerCase())) {
+				String[] values = userValue.split("-");
 
 				String env = values[0];
 				String userName = values[1];
@@ -154,6 +170,5 @@ public class BaseStepDef {
 		}
 		scenario.write(scenario.getStatus());
 	}
-	
 
 }
