@@ -3,6 +3,8 @@ package gov.va.ascent.test.framework.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.entity.ContentType;
+
 import gov.va.ascent.test.framework.util.RESTUtil;
 
 public class BearerTokenService {
@@ -32,8 +34,8 @@ public class BearerTokenService {
 		String baseUrl = restConfig.getPropertyName("baseURL", true);
 		String tokenUrl = restConfig.getPropertyName("tokenUrl");
 		Map<String, String> headerMap = new HashMap<>();
-		headerMap.put("Accept", "application/json;v=3");
-		headerMap.put("Content-Type", "application/json;v=3; charset=ISO-8859-1");
+		headerMap.put("Accept", ContentType.APPLICATION_JSON.getMimeType());
+		headerMap.put("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
 		RESTUtil restUtil = new RESTUtil();
 		restUtil.setUpRequest(headerFile, headerMap);
 		return restUtil.postResponse(baseUrl + tokenUrl);
