@@ -96,26 +96,18 @@ public class BaseStepDef {
 	 */
 	public void setHeader(String user) throws IOException {
 		Map<String, String> tblHeader = new HashMap<>();
-		String[] userList = user.trim().split(",");
-		for (String userValue : userList) {
-			String testEnv = System.getProperty("test.env");
-			if (testEnv == null) {
-				testEnv = "ci";
-			}
-			if (userValue.toLowerCase().startsWith(testEnv.toLowerCase())) {
-				String[] values = userValue.split("-");
 
-				String env = values[0];
-				String userName = values[1];
-				String url = "users/" + env + "/" + userName + ".properties";
-				Properties properties = new Properties();
-				properties.load(RESTConfigService.class.getClassLoader().getResourceAsStream(url));
-				for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-					tblHeader.put((String) entry.getKey(), (String) entry.getValue());
-				}
-				break;
-			}
+		String[] values = user.split("-");
+
+		String env = values[0];
+		String userName = values[1];
+		String url = "users/" + env + "/" + userName + ".properties";
+		Properties properties = new Properties();
+		properties.load(RESTConfigService.class.getClassLoader().getResourceAsStream(url));
+		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+			tblHeader.put((String) entry.getKey(), (String) entry.getValue());
 		}
+
 		passHeaderInformation(tblHeader);
 	}
 
