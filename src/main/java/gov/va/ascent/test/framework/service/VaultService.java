@@ -18,7 +18,9 @@ public class VaultService {
 		Map<String, String> headerMap = new HashMap<>();
 		headerMap.put(AppConstants.VAULT_TOKEN_PARAM_NAME, vaultToken);
 		restUtil.setUpRequest(headerMap);
-		String vaultUrl =  restConfig.getPropertyName("vault.url", true);
-		return restUtil.getResponse(vaultUrl);
+		String vaultUrlDomain =  restConfig.getPropertyName("vault.url.domain", true);
+		String vaultURLPath =  restConfig.getPropertyName("vault.url.path", true);
+		return restUtil.getResponse(vaultUrlDomain+vaultURLPath);
+
 	}
 }
