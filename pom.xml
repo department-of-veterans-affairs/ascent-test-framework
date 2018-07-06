@@ -23,6 +23,10 @@
 	<description>Ascent Test Framework</description>
 	<url>http://maven.apache.org</url>
 
+	<properties>
+		<ascent-test-framework.version>${version}</ascent-test-framework.version>
+	</properties>
+
 	<dependencies>
 
 		<dependency>
