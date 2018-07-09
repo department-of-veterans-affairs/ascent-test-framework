@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>gov.va.ascent</groupId>
 		<artifactId>ascent-libraries-parent</artifactId>
@@ -11,27 +12,35 @@
 	</parent>
 
 	<artifactId>ascent-test-framework</artifactId>
+	<!-- 
+		NOTE when this <version> number changes, 
+		you must manually change the property in ascent-platform-parent/pom.xml
+	-->
 	<version>0.0.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
+
 	<name>${project.artifactId}</name>
 	<description>Ascent Test Framework</description>
 	<url>http://maven.apache.org</url>
 
+	<properties>
+		<ascent-test-framework.version>${version}</ascent-test-framework.version>
+	</properties>
+
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>org.dom4j</groupId>
 			<artifactId>dom4j</artifactId>
 			<version>2.1.0</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.easytesting</groupId>
 			<artifactId>fest-assert-core</artifactId>
 			<version>${fest-assert.version}</version>
 		</dependency>
-		
+
 		<!-- Testng Dependencies -->
 		<dependency>
 			<groupId>org.testng</groupId>
@@ -39,8 +48,8 @@
 			<version>${testng.version}</version>
 			<scope>test</scope>
 		</dependency>
-	
-	
+
+
 		<!-- Cucumber Dependencies -->
 		<dependency>
 			<groupId>info.cukes</groupId>
@@ -68,7 +77,7 @@
 			<artifactId>cucumber-picocontainer</artifactId>
 			<version>${cucumber.version}</version>
 		</dependency>
-	
+
 		<!-- Rest assured library Dependencies -->
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
@@ -96,19 +105,19 @@
 			<artifactId>json-schema-validator</artifactId>
 			<version>${restassured.version}</version>
 		</dependency>
-		
-		<!--  Selenium dependencies -->
+
+		<!-- Selenium dependencies -->
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-htmlunit-driver -->
 		<dependency>
-		    <groupId>org.seleniumhq.selenium</groupId>
-		    <artifactId>selenium-htmlunit-driver</artifactId>
-		    <version>${selenium.htmlunit.version}</version>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-htmlunit-driver</artifactId>
+			<version>${selenium.htmlunit.version}</version>
 		</dependency>
-				
+
 		<dependency>
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-junit47</artifactId>
@@ -138,27 +147,27 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
 		</dependency>
-	    <dependency>
-	       <groupId>commons-io</groupId>
-		   <artifactId>commons-io</artifactId>
-	    </dependency>
-	    <!-- -YamlDependency -->
-	    <dependency>
-       	   <groupId>org.yaml</groupId>
-           <artifactId>snakeyaml</artifactId>
-      </dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<!-- -YamlDependency -->
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<!-- The skip property allows to skip the execution of the Spring Boot maven plugin altogether -->
-	        <plugin>
-	            <groupId>org.springframework.boot</groupId>
-	            <artifactId>spring-boot-maven-plugin</artifactId>
-	            <configuration>
-	                <skip>true</skip>
-	            </configuration>
-	        </plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
