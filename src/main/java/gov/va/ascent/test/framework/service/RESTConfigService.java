@@ -119,9 +119,11 @@ public class RESTConfigService {
 	 * <p>
 	 * It is optional to provide a value for the host's port.
 	 *
+	 * @param usernameKey the property key for the username property
+	 * @param passwordKey the property key for the password property
 	 * @return String the URL
 	 */
-	public static String getBaseURL() {
+	public static String getBaseURL(final String usernameKey, final String passwordKey) {
 		final RESTConfigService restConfig = RESTConfigService.getInstance();
 		final String baseURL = restConfig.getProperty("baseURL", true);
 
@@ -129,8 +131,8 @@ public class RESTConfigService {
 		if (vaultToken != null && vaultToken != "") {
 			final String jsonResponse = VaultService.getVaultCredentials(vaultToken);
 			final RESTUtil restUtil = new RESTUtil();
-			final String userName = restUtil.parseJSON(jsonResponse, "data.username");
-			final String password = restUtil.parseJSON(jsonResponse, "data.password");
+			final String userName = restUtil.parseJSON(jsonResponse, usernameKey);
+			final String password = restUtil.parseJSON(jsonResponse, passwordKey);
 
 			final Matcher m = urlPattern.matcher(baseURL);
 			if (!m.matches()) {
