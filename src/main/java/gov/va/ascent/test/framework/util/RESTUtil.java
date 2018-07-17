@@ -3,6 +3,7 @@ package gov.va.ascent.test.framework.util;
 import static com.jayway.restassured.RestAssured.given;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -31,6 +33,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 
 public class RESTUtil {
 
+	private static final String DOCUMENTS_FOLDER_NAME = "documents";
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
 	private Map<String, String> mapReqHeader = new HashMap<>(); // stores
@@ -117,7 +120,46 @@ public class RESTUtil {
 				.post(serviceURL);
 		return response.asString();
 	}
+	
 
+	public String postResponseWithMultipart(String serviceURL, String fileName) {
+		RestAssured.useRelaxedHTTPSValidation();
+		RequestSpecification requestSpecification = given();
+		if (LOGGER.isDebugEnabled()) {
+			requestSpecification = given().log().all();
+		} 
+		URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
+		try {
+			File filePath = new File(urlFilePath.toURI());
+			response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).when()
+					.multiPart((filePath))
+					.post(serviceURL);
+		} catch (URISyntaxException ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
+		return response.asString();
+	}
+
+	public String postResponseWithByteArray(String serviceURL, String fileName) {
+		RestAssured.useRelaxedHTTPSValidation();
+		RequestSpecification requestSpecification = given();
+		if (LOGGER.isDebugEnabled()) {
+			requestSpecification = given().log().all();
+		} 
+		try {
+			URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME+"/" + fileName);
+			final byte[] bytes = IOUtils.toByteArray(new FileInputStream(new File(urlFilePath.toURI())));
+					response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).when()
+							.body((bytes))
+							.post(serviceURL);
+		}
+		catch (URISyntaxException | IOException ex) {
+			LOGGER.error(ex.getMessage(), ex);
+		}
+		return response.asString();
+	}
+	
+	
 	public String putResponse(String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
