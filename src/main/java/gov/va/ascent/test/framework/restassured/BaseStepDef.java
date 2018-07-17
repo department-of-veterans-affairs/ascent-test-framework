@@ -61,6 +61,16 @@ public class BaseStepDef {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponse(strURL);
 	}
+	
+	public void invokeAPIUsingPostWithMultiPart(String strURL, String fileName) {
+		resUtil.setUpRequest(headerMap);
+		strResponse = resUtil.postResponseWithMultipart(strURL, fileName);
+	}
+
+	public void invokeAPIUsingPostWithByteArray(String strURL, String fileName) {
+		resUtil.setUpRequest(headerMap);
+		strResponse = resUtil.postResponseWithByteArray(strURL, fileName);
+	}
 
 	public void invokeAPIUsingDelete(String strURL, boolean isAuth) {
 		if (isAuth) {
