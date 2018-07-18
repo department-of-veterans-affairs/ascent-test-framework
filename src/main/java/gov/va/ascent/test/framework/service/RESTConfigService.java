@@ -48,7 +48,7 @@ public class RESTConfigService {
 	/** The name of the environment in which testing is occurring */
 	static final String TEST_ENV = "test.env";
 	/** URL regex for use by matchers */
-	private static final Pattern urlPattern = Pattern.compile("(http|https)://([A-Za-z0-9\\-\\.]+)(:(\\d+))$");
+	private static final Pattern urlPattern = Pattern.compile("(http|https)://([A-Za-z0-9\\-\\.]+)(:(\\d+))?$");
 
 	/**
 	 * Do not instantiate
@@ -133,7 +133,6 @@ public class RESTConfigService {
 			final RESTUtil restUtil = new RESTUtil();
 			final String userName = restUtil.parseJSON(jsonResponse, usernameKey);
 			final String password = restUtil.parseJSON(jsonResponse, passwordKey);
-
 			final Matcher m = urlPattern.matcher(baseURL);
 			if (!m.matches()) {
 				throw new RuntimeException("Invalid base url!");
