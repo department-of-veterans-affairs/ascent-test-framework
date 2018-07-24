@@ -2,6 +2,7 @@ package gov.va.ascent.test.framework.restassured;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.FileUtils;
-
+import org.openqa.selenium.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,63 +35,63 @@ public class BaseStepDef {
 		restConfig = RESTConfigService.getInstance();
 	}
 
-	public void passHeaderInformation(Map<String, String> tblHeader) {
+	public void passHeaderInformation(final Map<String, String> tblHeader) {
 		headerMap = new HashMap<>(tblHeader);
 	}
 
-	public void invokeAPIUsingGet(String strURL, boolean isAuth) {
+	public void invokeAPIUsingGet(final String strURL, final boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
 		}
 		invokeAPIUsingGet(strURL);
 	}
 
-	public void invokeAPIUsingGet(String strURL) {
+	public void invokeAPIUsingGet(final String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.getResponse(strURL);
 	}
 
-	public void invokeAPIUsingPost(String strURL, boolean isAuth) {
+	public void invokeAPIUsingPost(final String strURL, final boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
 		}
 		invokeAPIUsingPost(strURL);
 	}
 
-	public void invokeAPIUsingPost(String strURL) {
+	public void invokeAPIUsingPost(final String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponse(strURL);
 	}
-	
-	public void invokeAPIUsingPostWithMultiPart(String strURL, String fileName) {
+
+	public void invokeAPIUsingPostWithMultiPart(final String strURL, final String fileName) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponseWithMultipart(strURL, fileName);
 	}
 
-	public void invokeAPIUsingPostWithByteArray(String strURL, String fileName) {
+	public void invokeAPIUsingPostWithByteArray(final String strURL, final String fileName) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponseWithByteArray(strURL, fileName);
 	}
 
-	public void invokeAPIUsingDelete(String strURL, boolean isAuth) {
+	public void invokeAPIUsingDelete(final String strURL, final boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
 		}
 		invokeAPIUsingDelete(strURL);
 	}
 
-	public void invokeAPIUsingDelete(String strURL) {
+	public void invokeAPIUsingDelete(final String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.deleteResponse(strURL);
 	}
 
 	private void setBearerToken() {
 		bearerTokenService = BearerTokenService.getInstance();
-		String bearerToken = bearerTokenService.getBearerToken();
+		final String bearerToken = bearerTokenService.getBearerToken();
 		headerMap.put("Authorization", "Bearer " + bearerToken);
 	}
 
-	public void validateStatusCode(int intStatusCode) {
+	public void validateStatusCode(final int intStatusCode) {
 		resUtil.validateStatusCode(intStatusCode);
 	}
 
@@ -98,41 +99,47 @@ public class BaseStepDef {
 	 * Loads JSON property file that contains header values in to header map. Method
 	 * parameter user contains environment and user name delimited by -. The method
 	 * parses the environment and user name and loads JSON header file.
-	 * 
+	 *
 	 * @param user
 	 *            Contains the environment and user name delimited by - for eg:
 	 *            ci-janedoe
 	 * @throws IOException
 	 */
-	public void setHeader(String user) throws IOException {
-		Map<String, String> tblHeader = new HashMap<>();
+	public void setHeader(final String user) throws IOException {
+		final Map<String, String> tblHeader = new HashMap<>();
 
-		String[] values = user.split("-");
+		final String[] values = user.split("-");
 
-		String env = values[0];
-		String userName = values[1];
-		String url = "users/" + env + "/" + userName + ".properties";
-		Properties properties = new Properties();
-		properties.load(RESTConfigService.class.getClassLoader().getResourceAsStream(url));
-		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-			tblHeader.put((String) entry.getKey(), (String) entry.getValue());
+		final String env = values[0];
+		final String userName = values[1];
+		final String url = "users/" + env + "/" + userName + ".properties";
+		final Properties properties = new Properties();
+		InputStream is = null;
+		try {
+			is = RESTConfigService.class.getClassLoader().getResourceAsStream(url);
+			properties.load(is);
+			for (final Map.Entry<Object, Object> entry : properties.entrySet()) {
+				tblHeader.put((String) entry.getKey(), (String) entry.getValue());
+			}
+		} finally {
+			IOUtils.closeQuietly(is);
 		}
 
 		passHeaderInformation(tblHeader);
 	}
 
-	public boolean compareExpectedResponseWithActual(String strResFile) {
+	public boolean compareExpectedResponseWithActual(final String strResFile) {
 		boolean isMatch = false;
 		try {
-			String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
-			ObjectMapper mapper = new ObjectMapper();
-			Object strExpectedResponseJson = mapper.readValue(strExpectedResponse, Object.class);
-			String prettyStrExpectedResponse = mapper.writerWithDefaultPrettyPrinter()
+			final String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
+			final ObjectMapper mapper = new ObjectMapper();
+			final Object strExpectedResponseJson = mapper.readValue(strExpectedResponse, Object.class);
+			final String prettyStrExpectedResponse = mapper.writerWithDefaultPrettyPrinter()
 					.writeValueAsString(strExpectedResponseJson);
-			Object strResponseJson = mapper.readValue(strResponse, Object.class);
-			String prettyStrResponseJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strResponseJson);
+			final Object strResponseJson = mapper.readValue(strResponse, Object.class);
+			final String prettyStrResponseJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strResponseJson);
 			isMatch = prettyStrResponseJson.contains(prettyStrExpectedResponse);
-		} catch (IOException ioe) {
+		} catch (final IOException ioe) {
 			LOGGER.error(ioe.getMessage(), ioe);
 		}
 		return isMatch;
@@ -149,11 +156,11 @@ public class BaseStepDef {
 	 * @param responseFileName
 	 *            The response file.
 	 */
-	public boolean compareExpectedResponseWithActualByRow(String strResFile) {
-		String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
-		StringTokenizer tokenizer = new StringTokenizer(strExpectedResponse, "\n");
+	public boolean compareExpectedResponseWithActualByRow(final String strResFile) {
+		final String strExpectedResponse = resUtil.readExpectedResponse(strResFile);
+		final StringTokenizer tokenizer = new StringTokenizer(strExpectedResponse, "\n");
 		while (tokenizer.hasMoreTokens()) {
-			String responseLine = tokenizer.nextToken();
+			final String responseLine = tokenizer.nextToken();
 			if (!strResponse.contains(responseLine)) {
 				return false;
 			}
@@ -161,12 +168,12 @@ public class BaseStepDef {
 		return true;
 	}
 
-	public void postProcess(Scenario scenario) {
+	public void postProcess(final Scenario scenario) {
 		String strResponseFile = null;
 		try {
 			strResponseFile = "target/TestResults/Response/" + scenario.getName() + ".Response";
 			FileUtils.writeStringToFile(new File(strResponseFile), strResponse, StandardCharsets.UTF_8);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOGGER.error("Failed:Unable to write response to a file", ex);
 
 		}

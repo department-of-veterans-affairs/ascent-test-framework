@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -59,9 +60,7 @@ public class PropertiesUtil {
 
 			substitutePlaceholders(properties);
 
-		} catch (final IOException e) {
-			LOGGER.error(e.getMessage(), e);
-		} catch (final URISyntaxException e) {
+		} catch (final IOException | URISyntaxException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 
@@ -78,8 +77,8 @@ public class PropertiesUtil {
 			return;
 		}
 
-		final Map<String, String> valuesMap = new HashMap();
-		final Map<String, String> templateMap = new HashMap();
+		final Map<String, String> valuesMap = new HashMap<>();
+		final Map<String, String> templateMap = new HashMap<>();
 		for (final Object key : properties.keySet()) {
 			final String value = properties.getProperty((String) key);
 			if (value.contains("${")) {
@@ -90,10 +89,10 @@ public class PropertiesUtil {
 		}
 
 		final StrSubstitutor substitutor = new StrSubstitutor(valuesMap);
-		for (final String key : templateMap.keySet()) {
-			final String tmplt = templateMap.get(key);
+		for (final Entry<String, String> entry : templateMap.entrySet()) {
+			final String tmplt = entry.getKey();
 			final String subbed = substitutor.replace(tmplt);
-			properties.put(key, subbed);
+			properties.put(entry.getKey(), subbed);
 		}
 	}
 

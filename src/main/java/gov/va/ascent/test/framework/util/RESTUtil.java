@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -37,8 +38,8 @@ public class RESTUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
 	private Map<String, String> mapReqHeader = new HashMap<>(); // stores
-																			// request
-																			// headers
+																 // request
+																 // headers
 	String contentType = new String();
 	String jsonText = new String();
 	File requestFile = null;
@@ -48,17 +49,17 @@ public class RESTUtil {
 
 	/**
 	 * Reads file content for a given file resource using URL object.
-	 * 
+	 *
 	 * @param strRequestFile
 	 * @param mapHeader
 	 * @throws Exception
 	 */
-	public void setUpRequest(String strRequestFile, Map<String, String> mapHeader)  {
+	public void setUpRequest(final String strRequestFile, final Map<String, String> mapHeader) {
 		try {
 			mapReqHeader = mapHeader;
 			if (strRequestFile != null) {
 				LOGGER.info("Request File {}", strRequestFile);
-				URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Request/" + strRequestFile);
+				final URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Request/" + strRequestFile);
 				if (urlFilePath == null) {
 					LOGGER.error("Requested File Doesn't Exist: {}", "Request/" + strRequestFile);
 				} else {
@@ -68,121 +69,122 @@ public class RESTUtil {
 					jsonText = readFile(requestFile);
 				}
 			}
-		} catch (URISyntaxException ex) {
+		} catch (final URISyntaxException ex) {
 			LOGGER.error("Unable to do setUpRequest", ex);
 		}
 	}
 
 	/**
 	 * Assigns given header object into local header map.
-	 * 
+	 *
 	 * @param mapHeader
 	 * @throws Exception
 	 */
-	public void setUpRequest(Map<String, String> mapHeader)  {
+	public void setUpRequest(final Map<String, String> mapHeader) {
 		mapReqHeader = mapHeader;
 	}
 
 	/**
 	 * Invokes REST end point for a GET method using REST assured API and return
 	 * response json object.
-	 * 
+	 *
 	 * @param serviceURL
 	 * @return
 	 */
-	public String getResponse(String serviceURL) {
+	public String getResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		
+
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
-		} 
+		}
 		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
 		return response.asString();
 	}
 
-	public String deleteResponse(String serviceURL) {
+	public String deleteResponse(final String serviceURL) {
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
-		} 
+		}
 		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
 		return response.asString();
 	}
 
-	public String postResponse(String serviceURL) {
+	public String postResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
-		} 
+		}
 		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when()
 				.post(serviceURL);
 		return response.asString();
 	}
-	
 
-	public String postResponseWithMultipart(String serviceURL, String fileName) {
+	public String postResponseWithMultipart(final String serviceURL, final String fileName) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
-		} 
-		URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
+		}
+		final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
 		try {
-			File filePath = new File(urlFilePath.toURI());
+			final File filePath = new File(urlFilePath.toURI());
 			response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).when()
-					.multiPart((filePath))
+					.multiPart(filePath)
 					.post(serviceURL);
-		} catch (URISyntaxException ex) {
+		} catch (final URISyntaxException ex) {
 			LOGGER.error(ex.getMessage(), ex);
 		}
 		return response.asString();
 	}
 
-	public String postResponseWithByteArray(String serviceURL, String fileName) {
+	public String postResponseWithByteArray(final String serviceURL, final String fileName) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
-		} 
-		try {
-			URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME+"/" + fileName);
-			final byte[] bytes = IOUtils.toByteArray(new FileInputStream(new File(urlFilePath.toURI())));
-					response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).when()
-							.body((bytes))
-							.post(serviceURL);
 		}
-		catch (URISyntaxException | IOException ex) {
+		InputStream is = null;
+		try { // NOSONAR
+			final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
+			is = new FileInputStream(new File(urlFilePath.toURI())); // NOSONAR
+			final byte[] bytes = IOUtils.toByteArray(is);
+			response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).when()
+					.body(bytes)
+					.post(serviceURL);
+		} catch (URISyntaxException | IOException ex) {
 			LOGGER.error(ex.getMessage(), ex);
+		} finally {
+			IOUtils.closeQuietly(is);
 		}
 		return response.asString();
 	}
-	
-	
-	public String putResponse(String serviceURL) {
+
+	public String putResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
-		} 
+		}
 		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when().put(serviceURL);
 		return response.asString();
 	}
 
 	/**
 	 * Parses json object for a given key and match with given expected value.
-	 * 
+	 *
 	 * @param json
 	 * @param strRoot
 	 * @param strField
 	 * @param strExpectedValue
 	 * @return
 	 */
-	public String parseJSON(String json, String strRoot, String strField, String strExpectedValue) {
+	public String parseJSON(final String json, final String strRoot, final String strField, final String strExpectedValue) {
 		String strResult = null;
-		JsonPath jsonPath = new JsonPath(json).setRoot(strRoot);
-		List<String> lstField = jsonPath.get(strField);
+		final JsonPath jsonPath = new JsonPath(json).setRoot(strRoot);
+		final List<String> lstField = jsonPath.get(strField);
 		if (lstField.contains(strExpectedValue)) {
 			strResult = lstField.toString();
 			LOGGER.info("Passed:Field=" + strField + " matched the expected value=" + strExpectedValue);
@@ -193,107 +195,106 @@ public class RESTUtil {
 		}
 		return strResult;
 	}
-	
-	public String parseJSON(String json, String strField) {
+
+	public String parseJSON(final String json, final String strField) {
 		String strResult = null;
 		try {
-			JsonPath jsonPath = new JsonPath(json);
+			final JsonPath jsonPath = new JsonPath(json);
 			strResult = jsonPath.get(strField).toString();
-		} catch (Exception ex) {
-			LOGGER.error(ex.getMessage(),ex);
+		} catch (final Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
 		}
 		return strResult;
 	}
 
-	public String parseJSONroot(String json, String strRoot) {
+	public String parseJSONroot(final String json, final String strRoot) {
 		String strResult = null;
 		strResult = new JsonPath(json).get(strRoot).toString();
-		 
+
 		return strResult;
 	}
 
-	public String parseXML(String xml, String strFieldName, String strExpectedValue) {
+	public String parseXML(final String xml, final String strFieldName, final String strExpectedValue) {
 		String strResult = null;
 
-		XmlPath xmlPath = new XmlPath(xml);
-		String strField = xmlPath.get(strFieldName).toString();
+		final XmlPath xmlPath = new XmlPath(xml);
+		final String strField = xmlPath.get(strFieldName).toString();
 		if (strField.contains(strExpectedValue)) {
 			strResult = strField;
-			
-		} 
+
+		}
 		return strResult;
 	}
 
-	public String parseXML(String xml, String strFieldName) {
-		XmlPath xmlPath = new XmlPath(xml);
+	public String parseXML(final String xml, final String strFieldName) {
+		final XmlPath xmlPath = new XmlPath(xml);
 		return xmlPath.get(strFieldName).toString();
-		
+
 	}
 
-	public String parseXML(String xml, String strRoot, String strFieldName, String strExpectedValue) {
+	public String parseXML(final String xml, final String strRoot, final String strFieldName, final String strExpectedValue) {
 		String strResult = null;
 
-		XmlPath xmlPath = new XmlPath(xml).setRoot(strRoot);
+		final XmlPath xmlPath = new XmlPath(xml).setRoot(strRoot);
 
-		String strField = xmlPath.get(strFieldName);
+		final String strField = xmlPath.get(strFieldName);
 		if (strField.contains(strExpectedValue)) {
 			strResult = strField;
-		} 
+		}
 		return strResult;
 	}
 
-	public String prettyFormatXML(String strXml) {
-		String xml = strXml;
+	public String prettyFormatXML(final String strXml) {
+		final String xml = strXml;
 		String result = null;
 		try {
-			Document doc = DocumentHelper.parseText(xml);
-			StringWriter sw = new StringWriter();
-			OutputFormat format = OutputFormat.createPrettyPrint();
-			XMLWriter xw = new XMLWriter(sw, format);
+			final Document doc = DocumentHelper.parseText(xml);
+			final StringWriter sw = new StringWriter();
+			final OutputFormat format = OutputFormat.createPrettyPrint();
+			final XMLWriter xw = new XMLWriter(sw, format);
 			xw.write(doc);
 			result = sw.toString();
-		} catch (DocumentException |IOException ex) {
-			LOGGER.error(ex.getMessage(),ex);
+		} catch (DocumentException | IOException ex) {
+			LOGGER.error(ex.getMessage(), ex);
 		}
-		
+
 		return result;
 	}
 
-	public String readExpectedResponse(String filename) {
+	public String readExpectedResponse(final String filename) {
 		String strExpectedResponse = null;
 		try {
 			LOGGER.info("Response File: {}", filename);
-			URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Response/" + filename);
+			final URL urlFilePath = RESTUtil.class.getClassLoader().getResource("Response/" + filename);
 			if (urlFilePath == null) {
 				LOGGER.error("Requested File Doesn't Exist: {}", "Response/" + filename);
 			} else {
-				File strFilePath = new File(urlFilePath.toURI());
+				final File strFilePath = new File(urlFilePath.toURI());
 				strExpectedResponse = FileUtils.readFileToString(strFilePath, "ASCII");
 			}
-		} catch (URISyntaxException |IOException ex) {
+		} catch (URISyntaxException | IOException ex) {
 			LOGGER.error(ex.getMessage(), ex);
 		}
-		
+
 		return strExpectedResponse;
 	}
 
-	protected String readFile(File filename) {
+	protected String readFile(final File filename) {
 		String content = null;
-		File file = filename;
+		final File file = filename;
 		try (FileReader reader = new FileReader(file)) {
-				char[] chars = new char[(int) file.length()];
-				reader.read(chars);
-				content = new String(chars);
-		}
-		catch (IOException e) {
+			final char[] chars = new char[(int) file.length()];
+			reader.read(chars);
+			content = new String(chars);
+		} catch (final IOException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 		return content;
-		
+
 	}
 
-	public void validateStatusCode(int intStatusCode) {
-		int actStatusCode = response.getStatusCode();
+	public void validateStatusCode(final int intStatusCode) {
+		final int actStatusCode = response.getStatusCode();
 		Assert.assertEquals(intStatusCode, actStatusCode);
 	}
 

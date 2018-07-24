@@ -128,14 +128,14 @@ public class RESTConfigService {
 		final String baseURL = restConfig.getProperty("baseURL", true);
 
 		final String vaultToken = System.getProperty(AppConstants.VAULT_TOKEN_PARAM_NAME);
-		if (vaultToken != null && vaultToken != "") {
+		if (!StringUtils.isBlank(vaultToken)) {
 			final String jsonResponse = VaultService.getVaultCredentials(vaultToken);
 			final RESTUtil restUtil = new RESTUtil();
 			final String userName = restUtil.parseJSON(jsonResponse, usernameKey);
 			final String password = restUtil.parseJSON(jsonResponse, passwordKey);
 			final Matcher m = urlPattern.matcher(baseURL);
 			if (!m.matches()) {
-				throw new RuntimeException("Invalid base url!");
+				throw new RuntimeException("Invalid base url!"); // NOSONAR
 			}
 			final String protocol = m.group(1).toLowerCase();
 			final String host = m.group(2);
