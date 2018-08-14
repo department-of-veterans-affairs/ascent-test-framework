@@ -63,9 +63,9 @@ public class BaseStepDef {
 		strResponse = resUtil.postResponse(strURL);
 	}
 
-	public void invokeAPIUsingPostWithMultiPart(final String strURL, final String fileName) {
+	public void invokeAPIUsingPostWithMultiPart(final String strURL, final String fileName, final String submitPayloadPath) {
 		resUtil.setUpRequest(headerMap);
-		strResponse = resUtil.postResponseWithMultipart(strURL, fileName);
+		strResponse = resUtil.postResponseWithMultipart(strURL, fileName, submitPayloadPath);
 	}
 
 	public void invokeAPIUsingPostWithByteArray(final String strURL, final String fileName) {
