@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -27,9 +26,6 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
@@ -39,6 +35,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 public class RESTUtil {
 
 	private static final String DOCUMENTS_FOLDER_NAME = "documents";
+	private static final String PAYLOAD_FOLDER_NAME = "payload";
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
 	private Map<String, String> mapReqHeader = new HashMap<>(); // stores
@@ -133,23 +130,19 @@ public class RESTUtil {
 			requestSpecification = given().log().all();
 		}
 		final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
-		final URL urlFilePath_second = RESTUtil.class.getClassLoader().getResource(submitPayloadPath);
+		final URL urlFilePath_second = RESTUtil.class.getClassLoader().getResource(PAYLOAD_FOLDER_NAME + "/" + submitPayloadPath);
+		
 		try {
 			final File filePath = new File(urlFilePath.toURI());
 			final File filePath_Second = new File(urlFilePath_second.toURI());
-			System.out.println("mapReqHeader = "+mapReqHeader);
-			System.out.println("serviceURL is = "+serviceURL);
 			String submitPayload = FileUtils.readFileToString(filePath_Second, "UTF-8");
-			System.out.println("submitPayload" + submitPayload);
 			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false).headers(mapReqHeader).when()
 					.multiPart("file", filePath)
 					.multiPart("submitPayload", submitPayload, "application/json")
 					.post(serviceURL);
-			System.out.println("response out = "+response.asString());
 		} catch (final Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
-			ex.printStackTrace();
-			System.out.println(ex.getMessage());
+			
 		}
 		return response.asString();
 		
