@@ -35,6 +35,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 public class RESTUtil {
 
 	private static final String DOCUMENTS_FOLDER_NAME = "documents";
+	private static final String PAYLOAD_FOLDER_NAME = "payload";
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
 	private Map<String, String> mapReqHeader = new HashMap<>(); // stores
@@ -122,24 +123,31 @@ public class RESTUtil {
 		return response.asString();
 	}
 
-	public String postResponseWithMultipart(final String serviceURL, final String fileName) {
+	public String postResponseWithMultipart(final String serviceURL, final String fileName, final String submitPayloadPath) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
 		final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
+		final URL urlFilePath_second = RESTUtil.class.getClassLoader().getResource(PAYLOAD_FOLDER_NAME + "/" + submitPayloadPath);
+		
 		try {
 			final File filePath = new File(urlFilePath.toURI());
-			response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).when()
-					.multiPart(filePath)
+			final File filePath_Second = new File(urlFilePath_second.toURI());
+			String submitPayload = FileUtils.readFileToString(filePath_Second, "UTF-8");
+			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false).headers(mapReqHeader).when()
+					.multiPart("file", filePath)
+					.multiPart("submitPayload", submitPayload, "application/json")
 					.post(serviceURL);
-		} catch (final URISyntaxException ex) {
+		} catch (final Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
+			
 		}
 		return response.asString();
+		
 	}
-
+	
 	public String postResponseWithByteArray(final String serviceURL, final String fileName) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
