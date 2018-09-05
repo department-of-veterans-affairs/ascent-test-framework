@@ -130,12 +130,12 @@ public class RESTUtil {
 			requestSpecification = given().log().all();
 		}
 		final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
-		final URL urlFilePath_second = RESTUtil.class.getClassLoader().getResource(PAYLOAD_FOLDER_NAME + "/" + submitPayloadPath);
+		final URL urlSubmitPayload = RESTUtil.class.getClassLoader().getResource(PAYLOAD_FOLDER_NAME + "/" + submitPayloadPath);
 		
 		try {
 			final File filePath = new File(urlFilePath.toURI());
-			final File filePath_Second = new File(urlFilePath_second.toURI());
-			String submitPayload = FileUtils.readFileToString(filePath_Second, "UTF-8");
+			final File filePathSubmitPayload = new File(urlSubmitPayload.toURI());
+			String submitPayload = FileUtils.readFileToString(filePathSubmitPayload, "UTF-8");
 			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false).headers(mapReqHeader).when()
 					.multiPart("file", filePath)
 					.multiPart("submitPayload", submitPayload, "application/json")
@@ -148,28 +148,6 @@ public class RESTUtil {
 		
 	}
 	
-	public String postResponseWithByteArray(final String serviceURL, final String fileName) {
-		RestAssured.useRelaxedHTTPSValidation();
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		InputStream is = null;
-		try { // NOSONAR
-			final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
-			is = new FileInputStream(new File(urlFilePath.toURI())); // NOSONAR
-			final byte[] bytes = IOUtils.toByteArray(is);
-			response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).when()
-					.body(bytes)
-					.post(serviceURL);
-		} catch (URISyntaxException | IOException ex) {
-			LOGGER.error(ex.getMessage(), ex);
-		} finally {
-			IOUtils.closeQuietly(is);
-		}
-		return response.asString();
-	}
-
 	public String putResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
