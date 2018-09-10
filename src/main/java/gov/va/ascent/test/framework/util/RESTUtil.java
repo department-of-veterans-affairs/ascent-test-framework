@@ -27,10 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
+
+import gov.va.ascent.test.framework.service.RESTConfigService;
 
 public class RESTUtil {
 
@@ -47,6 +51,13 @@ public class RESTUtil {
 	File responseFile = null;
 	PrintStream requestStream = null;
 	Response response = null; // stores response from rest
+	
+	RestAssuredConfig restAssuredConfig = null;
+
+	public RESTUtil() {
+		configureRestAssured();
+	}
+
 
 	/**
 	 * Reads file content for a given file resource using URL object.
@@ -95,7 +106,7 @@ public class RESTUtil {
 	public String getResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
 
-		RequestSpecification requestSpecification = given();
+		RequestSpecification requestSpecification = given().config(restAssuredConfig);
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
@@ -104,7 +115,7 @@ public class RESTUtil {
 	}
 
 	public String deleteResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given();
+		RequestSpecification requestSpecification = given().config(restAssuredConfig);
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
@@ -114,7 +125,7 @@ public class RESTUtil {
 
 	public String postResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		RequestSpecification requestSpecification = given();
+		RequestSpecification requestSpecification = given().config(restAssuredConfig);
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
@@ -122,6 +133,22 @@ public class RESTUtil {
 				.post(serviceURL);
 		return response.asString();
 	}
+	
+	private void configureRestAssured() {
+		if(restAssuredConfig == null) {
+			String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true); 
+			System.out.println("pathToKeyStore ============"+pathToKeyStore);			
+			String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
+			System.out.println("password ============"+password);
+			RestAssured.useRelaxedHTTPSValidation();
+			SSLConfig sslconfig = new SSLConfig()
+					.keystoreType("JKS")
+					.keystore(pathToKeyStore, password)
+					.relaxedHTTPSValidation();
+			restAssuredConfig = RestAssured.config().sslConfig(sslconfig);
+		}
+	}
+	
 
 	public String postResponseWithMultipart(final String serviceURL, final String fileName, final String submitPayloadPath) {
 		RestAssured.useRelaxedHTTPSValidation();
