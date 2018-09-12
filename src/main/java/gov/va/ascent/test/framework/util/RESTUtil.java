@@ -6,17 +6,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -51,9 +52,6 @@ public class RESTUtil {
 	File responseFile = null;
 	PrintStream requestStream = null;
 	Response response = null; // stores response from rest
-	
-	RestAssuredConfig restAssuredConfig = null;
-
 	public RESTUtil() {
 		configureRestAssured();
 	}
@@ -104,9 +102,7 @@ public class RESTUtil {
 	 * @return
 	 */
 	public String getResponse(final String serviceURL) {
-		RestAssured.useRelaxedHTTPSValidation();
-
-		RequestSpecification requestSpecification = given().config(restAssuredConfig);
+		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
@@ -115,7 +111,7 @@ public class RESTUtil {
 	}
 
 	public String deleteResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given().config(restAssuredConfig);
+		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
@@ -124,8 +120,7 @@ public class RESTUtil {
 	}
 
 	public String postResponse(final String serviceURL) {
-		RestAssured.useRelaxedHTTPSValidation();
-		RequestSpecification requestSpecification = given().config(restAssuredConfig);
+		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
@@ -135,18 +130,41 @@ public class RESTUtil {
 	}
 	
 	private void configureRestAssured() {
-		if(restAssuredConfig == null) {
-			String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true); 
-			System.out.println("pathToKeyStore ============"+pathToKeyStore);			
-			String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
-			System.out.println("password ============"+password);
+		String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
+		if(StringUtils.isBlank(pathToKeyStore)) {
 			RestAssured.useRelaxedHTTPSValidation();
-			SSLConfig sslconfig = new SSLConfig()
-					.keystoreType("JKS")
-					.keystore(pathToKeyStore, password)
-					.relaxedHTTPSValidation();
-			restAssuredConfig = RestAssured.config().sslConfig(sslconfig);
 		}
+		else {
+			KeyStore keyStore = null;		
+			String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
+
+			try(FileInputStream instream = new FileInputStream(pathToKeyStore)) {
+				keyStore = KeyStore.getInstance("jks");
+				keyStore.load(instream, password.toCharArray());				
+			}
+			catch (Exception e) {
+				 LOGGER.error("Issue with the certificate or password"+e);
+			} 
+
+			org.apache.http.conn.ssl.SSLSocketFactory clientAuthFactory = null;
+			SSLConfig config = null;
+
+			try {
+				clientAuthFactory = new org.apache.http.conn.ssl.SSLSocketFactory(keyStore, password);
+				  // set the config in rest assured
+				X509HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+				clientAuthFactory.setHostnameVerifier(hostnameVerifier);
+		        config = new SSLConfig().with().sslSocketFactory(clientAuthFactory).and().allowAllHostnames();
+
+				RestAssured.config = RestAssured.config().sslConfig(config);
+				
+
+			} catch (Exception e) {
+				LOGGER.error("Issue while configuring certificate "+e);
+				
+			}			
+		}
+		
 	}
 	
 
