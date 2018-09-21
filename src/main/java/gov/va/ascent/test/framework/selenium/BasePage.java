@@ -1,6 +1,7 @@
 package gov.va.ascent.test.framework.selenium;
 
 import java.io.File;
+import java.net.MalformedURLException;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -21,7 +22,6 @@ public class BasePage {
 	protected static WebDriver selenium;
 	private static final String BROWSER_NAME = System.getProperty("browser");
 	private static final String WEBDRIVER_PATH = System.getProperty("webdriverPath");
-	private static final Logger log = LoggerFactory.getLogger(BasePage.class);
 	private static final Logger LOGGER = LoggerFactory.getLogger(BasePage.class);
 
 	public BasePage(WebDriver selenium) {
@@ -43,10 +43,11 @@ public class BasePage {
 			dcChrome.setCapability(CapabilityType.BROWSER_NAME, "Chrome");
 			dcChrome.setCapability(ChromeOptions.CAPABILITY, options);
 			dcChrome.setCapability("ignoreProtectedModeSettings", true);
-			dcChrome.setCapability("chrome.ensureCleanSession", true);
+			dcChrome.setCapability("acceptInsecureCerts", true);
+			dcChrome.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
 
-			if (BROWSER_NAME == null || "HtmlUnit".equalsIgnoreCase(BROWSER_NAME)) {
-				if (selenium == null) {
+			if (selenium == null) {
+				if (BROWSER_NAME == null || "HtmlUnit".equalsIgnoreCase(BROWSER_NAME)) {
 					DesiredCapabilities dcHtml = DesiredCapabilities.htmlUnit();
 					dcHtml.setCapability("ignoreProtectedModeSettings", true);
 					dcHtml.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
@@ -54,43 +55,43 @@ public class BasePage {
 					dcHtml.setCapability("handlesAlerts", true);
 					dcHtml.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, true);
 					
-					selenium = new HtmlUnitDriver(dcHtml) {
-						@Override
-						protected WebClient modifyWebClient(WebClient client) {
-							try {
-                            String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
-                            String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
-                            File certificateFile =new File(pathToKeyStore);
-                            client.getOptions().setSSLClientCertificate(certificateFile.toURI().toURL(), password, "jks");
-							}
-							catch(Exception e) {
-								LOGGER.error("Unable to load JKS");
-							}
-                            return client;
-						}
-					};
+					selenium = getHtmlUnitDriver(dcHtml);
 					dcHtml.setJavascriptEnabled(true);
 					((HtmlUnitDriver)selenium).setJavascriptEnabled(true);
-					selenium.manage().window().maximize();
-			
+					selenium.manage().window().maximize();		
 				}
-			else if ("CHROME".equalsIgnoreCase(BROWSER_NAME)) {
-				System.setProperty("webdriver.chrome.driver", WEBDRIVER_PATH);
-				if (selenium == null) {
+				else if ("CHROME".equalsIgnoreCase(BROWSER_NAME)) {
+					System.setProperty("webdriver.chrome.driver", WEBDRIVER_PATH);
 					selenium = new ChromeDriver(dcChrome);
 					selenium.manage().window().maximize();
-
 				}
 			}
-
-
-		}
+			LOGGER.debug("Driver already initialized");
 		}
 		catch (Exception e) {
-			log.error("ERROR", "Could not launch the WebDriver selenium", e);
+			LOGGER.error("ERROR", "Could not launch the WebDriver selenium", e);
 		}
 		return selenium;
 
+	}
+	
+	private static HtmlUnitDriver getHtmlUnitDriver(DesiredCapabilities dcHtml) {
+		return new HtmlUnitDriver(dcHtml) {
+			@Override
+			protected WebClient modifyWebClient(WebClient client) {
+				try {
+                String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
+                String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
+                File certificateFile =new File(pathToKeyStore);
+                client.getOptions().setSSLClientCertificate(certificateFile.toURI().toURL(), password, "jks");
+				}
+				catch(MalformedURLException e) {
+					LOGGER.error("Unable to load JKS");
+					return null;
+				}
+                return client;
+			}
+		};
 	}
 
 	// Wait method used to sync for different objects
