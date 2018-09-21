@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
