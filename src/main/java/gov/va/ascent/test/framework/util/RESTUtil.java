@@ -40,6 +40,7 @@ public class RESTUtil {
 
 	private static final String DOCUMENTS_FOLDER_NAME = "documents";
 	private static final String PAYLOAD_FOLDER_NAME = "payload";
+	private static final String SUBMIT_PAYLOAD = "submitPayload";
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
 	private Map<String, String> mapReqHeader = new HashMap<>(); // stores
@@ -182,7 +183,30 @@ public class RESTUtil {
 			String submitPayload = FileUtils.readFileToString(filePathSubmitPayload, "UTF-8");
 			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false).headers(mapReqHeader).when()
 					.multiPart("file", filePath)
-					.multiPart("submitPayload", submitPayload, "application/json")
+					.multiPart(SUBMIT_PAYLOAD, submitPayload, "application/json")
+					.post(serviceURL);
+		} catch (final Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
+			
+		}
+		return response.asString();
+		
+	}
+	
+	public String postResponseWithMultipart(final String serviceURL, final String fileName, final byte[] submitPayload) {
+		System.out.println("Inside submit byte[] -------------------------------------------"+new String(submitPayload));
+		RestAssured.useRelaxedHTTPSValidation();
+		RequestSpecification requestSpecification = given();
+		if (LOGGER.isDebugEnabled()) {
+			requestSpecification = given().log().all();
+		}
+		final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
+		
+		try {
+			final File filePath = new File(urlFilePath.toURI());
+			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false).headers(mapReqHeader).when()
+					.multiPart("file", filePath)
+					.multiPart(SUBMIT_PAYLOAD, SUBMIT_PAYLOAD, submitPayload, "application/json")
 					.post(serviceURL);
 		} catch (final Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
