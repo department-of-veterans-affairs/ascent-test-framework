@@ -68,6 +68,11 @@ public class BaseStepDef {
 		strResponse = resUtil.postResponseWithMultipart(strURL, fileName, submitPayloadPath);
 	}
 
+	public void invokeAPIUsingPostWithMultiPart(final String strURL, final String fileName, final byte[] submitPayloadPath) {
+		resUtil.setUpRequest(headerMap);
+		strResponse = resUtil.postResponseWithMultipart(strURL, fileName, submitPayloadPath);
+	}
+
 	public void invokeAPIUsingDelete(final String strURL, final boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
