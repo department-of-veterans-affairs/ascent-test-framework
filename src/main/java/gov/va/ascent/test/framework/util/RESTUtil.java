@@ -194,7 +194,6 @@ public class RESTUtil {
 	}
 	
 	public String postResponseWithMultipart(final String serviceURL, final String fileName, final byte[] submitPayload) {
-		System.out.println("Inside submit byte[] -------------------------------------------"+new String(submitPayload));
 		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
