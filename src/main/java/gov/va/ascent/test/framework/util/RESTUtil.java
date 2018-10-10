@@ -1,6 +1,6 @@
 package gov.va.ascent.test.framework.util;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,14 +27,13 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.config.SSLConfig;
-import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.path.xml.XmlPath;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.RequestSpecification;
-
 import gov.va.ascent.test.framework.service.RESTConfigService;
+import io.restassured.RestAssured;
+import io.restassured.config.SSLConfig;
+import io.restassured.path.json.JsonPath;
+import io.restassured.path.xml.XmlPath;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 public class RESTUtil {
 
