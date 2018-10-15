@@ -168,7 +168,6 @@ public class RESTUtil {
 	
 
 	public String postResponseWithMultipart(final String serviceURL, final String fileName, final String submitPayloadPath) {
-		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
@@ -193,7 +192,6 @@ public class RESTUtil {
 	}
 	
 	public String postResponseWithMultipart(final String serviceURL, final String fileName, final byte[] submitPayload) {
-		RestAssured.useRelaxedHTTPSValidation();
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
@@ -207,7 +205,6 @@ public class RESTUtil {
 					.multiPart(SUBMIT_PAYLOAD, SUBMIT_PAYLOAD, submitPayload, "application/json")
 					.post(serviceURL);
 		} catch (final Exception ex) {
-			LOGGER.error(ex.getMessage(), ex);
 			
 		}
 		return response.asString();
