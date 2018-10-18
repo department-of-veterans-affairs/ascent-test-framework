@@ -1,0 +1,133 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Refdata-Service-collection",
+		"_postman_id": "72deb4ec-0731-3d08-f347-9396f8761038",
+		"description": "This test will execute requests for the 5 rest end points available in Refdata module.\n\nGet list of country names: /api/refdata/v1/countries\nGet list of state abbreviations: /api/refdata/v1/states\nGetlist of VA Intake sites: /api/refdata/v1/intakesites\nGet list of VA Treatment Centers: /api/refdata/v1/treatmentcenter\nGet list of VA defined disabilities for benefits and compensation purposes: /api/refdata/v1/disabilities\n\nAdditionally it will also hit the /token end point to generate JWT token for the users\n\nFor exeuting in different environments. On the right side you will see drop down box with all env listesd. Please choose appropriate env based on the execution.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Refdata Token Endpoint",
+			"request": {
+				"url": "{{url}}/api/refdata/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json;",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json;",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"assuranceLevel\": 2,\n  \"birthDate\": \"1978-05-20\",\n  \"correlationIds\": [\n    \"string\"\n  ],\n  \"dodedipnid\": \"string\",\n  \"email\": \"jane.doe@va.gov\",\n  \"fileNumber\": \"string\",\n  \"firstName\": \"JANE\",\n  \"gender\": \"FEMALE\",\n  \"icn\": \"string\",\n  \"lastName\": \"DOE\",\n  \"middleName\": \"M\",\n  \"pid\": \"912444689\",\n  \"pnid\": \"string\",\n  \"pnidType\": \"string\",\n  \"prefix\": \"Ms\",\n  \"suffix\": \"S\",\n  \"tokenId\": \"string\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Disablitiy List",
+			"request": {
+				"url": "{{url}}/api/refdata/v1/disabilities",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJWZXRzLmdvdiIsImlhdCI6MTUzOTc5OTkwNSwianRpIjoiZTU3ZTRjODItNWE0Yy00MTEwLTkyODQtZTA5ZmNiNDM4NzU4IiwiZXhwIjoxNTM5ODAwODA1LCJmaXJzdE5hbWUiOiJKQU5FIiwibWlkZGxlTmFtZSI6Ik0iLCJsYXN0TmFtZSI6IkRPRSIsInByZWZpeCI6Ik1zIiwic3VmZml4IjoiUyIsImJpcnRoRGF0ZSI6IjE5NzgtMDUtMjAiLCJnZW5kZXIiOiJGRU1BTEUiLCJhc3N1cmFuY2VMZXZlbCI6MiwiZW1haWwiOiJqYW5lLmRvZUB2YS5nb3YiLCJkb2RlZGlwbmlkIjoic3RyaW5nIiwicG5pZFR5cGUiOiJzdHJpbmciLCJwbmlkIjoic3RyaW5nIiwicGlkIjoiOTEyNDQ0Njg5IiwiaWNuIjoic3RyaW5nIiwiZmlsZU51bWJlciI6InN0cmluZyIsImNvcnJlbGF0aW9uSWRzIjpbInN0cmluZyJdfQ.ONsj3suRastqsNxNBo2QEIAbmt3UNx-Y0ki8U69kzRU",
+						"description": "Get new token from the token API and replace it during the execution."
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get Countries",
+			"request": {
+				"url": "{{url}}/api/refdata/v1/countries",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJWZXRzLmdvdiIsImlhdCI6MTUzOTc5OTkwNSwianRpIjoiZTU3ZTRjODItNWE0Yy00MTEwLTkyODQtZTA5ZmNiNDM4NzU4IiwiZXhwIjoxNTM5ODAwODA1LCJmaXJzdE5hbWUiOiJKQU5FIiwibWlkZGxlTmFtZSI6Ik0iLCJsYXN0TmFtZSI6IkRPRSIsInByZWZpeCI6Ik1zIiwic3VmZml4IjoiUyIsImJpcnRoRGF0ZSI6IjE5NzgtMDUtMjAiLCJnZW5kZXIiOiJGRU1BTEUiLCJhc3N1cmFuY2VMZXZlbCI6MiwiZW1haWwiOiJqYW5lLmRvZUB2YS5nb3YiLCJkb2RlZGlwbmlkIjoic3RyaW5nIiwicG5pZFR5cGUiOiJzdHJpbmciLCJwbmlkIjoic3RyaW5nIiwicGlkIjoiOTEyNDQ0Njg5IiwiaWNuIjoic3RyaW5nIiwiZmlsZU51bWJlciI6InN0cmluZyIsImNvcnJlbGF0aW9uSWRzIjpbInN0cmluZyJdfQ.ONsj3suRastqsNxNBo2QEIAbmt3UNx-Y0ki8U69kzRU",
+						"description": "Get new token from the token API and replace it during the execution."
+					},
+					{
+						"key": "",
+						"value": "",
+						"description": "",
+						"disabled": true
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Intakesites",
+			"request": {
+				"url": "{{url}}/api/refdata/v1/intakesites",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJWZXRzLmdvdiIsImlhdCI6MTUzOTc5OTkwNSwianRpIjoiZTU3ZTRjODItNWE0Yy00MTEwLTkyODQtZTA5ZmNiNDM4NzU4IiwiZXhwIjoxNTM5ODAwODA1LCJmaXJzdE5hbWUiOiJKQU5FIiwibWlkZGxlTmFtZSI6Ik0iLCJsYXN0TmFtZSI6IkRPRSIsInByZWZpeCI6Ik1zIiwic3VmZml4IjoiUyIsImJpcnRoRGF0ZSI6IjE5NzgtMDUtMjAiLCJnZW5kZXIiOiJGRU1BTEUiLCJhc3N1cmFuY2VMZXZlbCI6MiwiZW1haWwiOiJqYW5lLmRvZUB2YS5nb3YiLCJkb2RlZGlwbmlkIjoic3RyaW5nIiwicG5pZFR5cGUiOiJzdHJpbmciLCJwbmlkIjoic3RyaW5nIiwicGlkIjoiOTEyNDQ0Njg5IiwiaWNuIjoic3RyaW5nIiwiZmlsZU51bWJlciI6InN0cmluZyIsImNvcnJlbGF0aW9uSWRzIjpbInN0cmluZyJdfQ.ONsj3suRastqsNxNBo2QEIAbmt3UNx-Y0ki8U69kzRU",
+						"description": "Get new token from the token API and replace it during the execution."
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "States List",
+			"request": {
+				"url": "{{url}}//api/refdata/v1/states",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJWZXRzLmdvdiIsImlhdCI6MTUzOTc5OTkwNSwianRpIjoiZTU3ZTRjODItNWE0Yy00MTEwLTkyODQtZTA5ZmNiNDM4NzU4IiwiZXhwIjoxNTM5ODAwODA1LCJmaXJzdE5hbWUiOiJKQU5FIiwibWlkZGxlTmFtZSI6Ik0iLCJsYXN0TmFtZSI6IkRPRSIsInByZWZpeCI6Ik1zIiwic3VmZml4IjoiUyIsImJpcnRoRGF0ZSI6IjE5NzgtMDUtMjAiLCJnZW5kZXIiOiJGRU1BTEUiLCJhc3N1cmFuY2VMZXZlbCI6MiwiZW1haWwiOiJqYW5lLmRvZUB2YS5nb3YiLCJkb2RlZGlwbmlkIjoic3RyaW5nIiwicG5pZFR5cGUiOiJzdHJpbmciLCJwbmlkIjoic3RyaW5nIiwicGlkIjoiOTEyNDQ0Njg5IiwiaWNuIjoic3RyaW5nIiwiZmlsZU51bWJlciI6InN0cmluZyIsImNvcnJlbGF0aW9uSWRzIjpbInN0cmluZyJdfQ.ONsj3suRastqsNxNBo2QEIAbmt3UNx-Y0ki8U69kzRU",
+						"description": "Get new token from the token API and replace it during the execution."
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Treatmentcenters",
+			"request": {
+				"url": "{{url}}/api/refdata/v1/treatmentcenters/VA",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJWZXRzLmdvdiIsImlhdCI6MTUzOTc5OTkwNSwianRpIjoiZTU3ZTRjODItNWE0Yy00MTEwLTkyODQtZTA5ZmNiNDM4NzU4IiwiZXhwIjoxNTM5ODAwODA1LCJmaXJzdE5hbWUiOiJKQU5FIiwibWlkZGxlTmFtZSI6Ik0iLCJsYXN0TmFtZSI6IkRPRSIsInByZWZpeCI6Ik1zIiwic3VmZml4IjoiUyIsImJpcnRoRGF0ZSI6IjE5NzgtMDUtMjAiLCJnZW5kZXIiOiJGRU1BTEUiLCJhc3N1cmFuY2VMZXZlbCI6MiwiZW1haWwiOiJqYW5lLmRvZUB2YS5nb3YiLCJkb2RlZGlwbmlkIjoic3RyaW5nIiwicG5pZFR5cGUiOiJzdHJpbmciLCJwbmlkIjoic3RyaW5nIiwicGlkIjoiOTEyNDQ0Njg5IiwiaWNuIjoic3RyaW5nIiwiZmlsZU51bWJlciI6InN0cmluZyIsImNvcnJlbGF0aW9uSWRzIjpbInN0cmluZyJdfQ.ONsj3suRastqsNxNBo2QEIAbmt3UNx-Y0ki8U69kzRU",
+						"description": "Get new token from the token API and replace it during the execution."
+					},
+					{
+						"key": "",
+						"value": "",
+						"description": "",
+						"disabled": true
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

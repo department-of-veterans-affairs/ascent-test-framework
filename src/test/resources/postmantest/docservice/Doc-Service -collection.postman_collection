@@ -1,0 +1,69 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Doc-Service -collection",
+		"_postman_id": "fbe07c7f-8e31-04e9-e5ac-a025389a5acf",
+		"description": "This test will execute requests for the doc service token API and happy path sceanrio.\n\nNote: For the happy path scenario use submitpayload.json and valid file (txt,pdf) in the body before hitting the actual service.Documents are in the folder 'testdatadocuments'. Get a new token and replace in the header.\n\nFor exeuting in different environments. On the right side you will see drop down box with all env listesd. Please choose appropriate env based on the execution.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Document Token Endpoint",
+			"request": {
+				"url": "{{url}}/api/document/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json;",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json;",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"assuranceLevel\": 2,\n  \"birthDate\": \"1967-02-18\",\n  \"correlationIds\": [\n    \"string\"\n  ],\n  \"dodedipnid\": \"string\",\n  \"email\": \"test1@test.com\",\n  \"fileNumber\": \"string\",\n  \"firstName\": \"HAZEL\",\n  \"gender\": \"FEMALE\",\n  \"icn\": \"string\",\n  \"lastName\": \"PEREZ\",\n  \"middleName\": \"L\",\n  \"pid\": \"600071516\",\n  \"pnid\": \"string\",\n  \"pnidType\": \"string\",\n  \"prefix\": \"Ms\",\n  \"suffix\": \"S\",\n  \"tokenId\": \"string\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Upload a Document- Happy Path",
+			"request": {
+				"url": "{{url}}/api/document/v1/submit",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJWZXRzLmdvdiIsImlhdCI6MTUzOTg3NTg5MywianRpIjoiODFkMTM4NDctMGY1NC00ZmMyLWE5OTEtYzg0ZTdhYjUwMGI0IiwiZXhwIjoxNTM5ODc2NzkzLCJmaXJzdE5hbWUiOiJIQVpFTCIsIm1pZGRsZU5hbWUiOiJMIiwibGFzdE5hbWUiOiJQRVJFWiIsInByZWZpeCI6Ik1zIiwic3VmZml4IjoiUyIsImJpcnRoRGF0ZSI6IjE5NjctMDItMTgiLCJnZW5kZXIiOiJGRU1BTEUiLCJhc3N1cmFuY2VMZXZlbCI6MiwiZW1haWwiOiJ0ZXN0MUB0ZXN0LmNvbSIsImRvZGVkaXBuaWQiOiJzdHJpbmciLCJwbmlkVHlwZSI6InN0cmluZyIsInBuaWQiOiJzdHJpbmciLCJwaWQiOiI2MDAwNzE1MTYiLCJpY24iOiJzdHJpbmciLCJmaWxlTnVtYmVyIjoic3RyaW5nIiwiY29ycmVsYXRpb25JZHMiOlsic3RyaW5nIl19.uVu-Xlyy64Fiaqz1iPPO_t1KzSZMiR7ldBGHDyrzB7M",
+						"description": "Get new token from the token API and replace it during the execution."
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"description": "Please select valid file (txt,pdf)",
+							"type": "file",
+							"src": "Hello.txt"
+						},
+						{
+							"key": "submitPayload",
+							"description": "Please select  submitpayload.json. ",
+							"type": "file",
+							"src": "submitpayload.json"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
