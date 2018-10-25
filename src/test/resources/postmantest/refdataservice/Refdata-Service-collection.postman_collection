@@ -26,7 +26,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"assuranceLevel\": 2,\n  \"birthDate\": \"1978-05-20\",\n  \"correlationIds\": [\n    \"string\"\n  ],\n  \"dodedipnid\": \"string\",\n  \"email\": \"jane.doe@va.gov\",\n  \"fileNumber\": \"string\",\n  \"firstName\": \"JANE\",\n  \"gender\": \"FEMALE\",\n  \"icn\": \"string\",\n  \"lastName\": \"DOE\",\n  \"middleName\": \"M\",\n  \"pid\": \"912444689\",\n  \"pnid\": \"string\",\n  \"pnidType\": \"string\",\n  \"prefix\": \"Ms\",\n  \"suffix\": \"S\",\n  \"tokenId\": \"string\"\n}"
+					"raw": "{\n  \"assuranceLevel\": 2,\n  \"birthDate\": \"1978-05-20\",\n  \"correlationIds\": [\n    \"1012832469V956223^NI^200M^USVHA^P\", \"796046489^PI^200BRLS^USVBA^A\", \"600071516^PI^200CORP^USVBA^A\", \"1040626995^NI^200DOD^USDOD^A\", \"1040626995^SS^200BRLS^USVBA^A\", \"796046489^SS\"  ],\n  \"dodedipnid\": \"string\",\n  \"email\": \"jane.doe@va.gov\",\n  \"fileNumber\": \"string\",\n  \"firstName\": \"JANE\",\n  \"gender\": \"FEMALE\",\n  \"icn\": \"string\",\n  \"lastName\": \"DOE\",\n  \"middleName\": \"M\",\n  \"pid\": \"912444689\",\n  \"pnid\": \"string\",\n  \"pnidType\": \"string\",\n  \"prefix\": \"Ms\",\n  \"suffix\": \"S\",\n  \"tokenId\": \"string\"\n}"
 				},
 				"description": ""
 			},
