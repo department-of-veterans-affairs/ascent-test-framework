@@ -1,6 +1,8 @@
 package gov.va.ascent.test.framework.service;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +41,7 @@ import gov.va.ascent.test.framework.util.RESTUtil;
  */
 public class RESTConfigService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTConfigService.class);
+	private static final String CHARSET = "UTF-8";
 
 	/** The singleton instance of this class */
 	private static RESTConfigService instance = null;
@@ -131,8 +134,14 @@ public class RESTConfigService {
 		if (!StringUtils.isBlank(vaultToken)) {
 			final String jsonResponse = VaultService.getVaultCredentials(vaultToken);
 			final RESTUtil restUtil = new RESTUtil();
-			final String userName = restUtil.parseJSON(jsonResponse, usernameKey);
-			final String password = restUtil.parseJSON(jsonResponse, passwordKey);
+			String userName = restUtil.parseJSON(jsonResponse, usernameKey);
+			String password = restUtil.parseJSON(jsonResponse, passwordKey);
+			try {
+				userName = URLEncoder.encode(userName, CHARSET);
+				password = URLEncoder.encode(password, CHARSET);
+			} catch (UnsupportedEncodingException ex) {
+				LOGGER.error("Could not URLEncode the username/password for the application URL.", ex);
+			}
 			final Matcher m = urlPattern.matcher(baseURL);
 			if (!m.matches()) {
 				throw new RuntimeException("Invalid base url!"); // NOSONAR
