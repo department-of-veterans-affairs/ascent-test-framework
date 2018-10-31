@@ -2,6 +2,7 @@ package gov.va.ascent.test.framework.selenium;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import org.apache.commons.lang3.StringUtils;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -13,10 +14,13 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
 import com.gargoylesoftware.htmlunit.WebClient;
 
 import gov.va.ascent.test.framework.service.RESTConfigService;
+import gov.va.ascent.test.framework.service.VaultService;
+import gov.va.ascent.test.framework.util.AppConstants;
+import gov.va.ascent.test.framework.util.RESTUtil;
 
 public class BasePage {
 	protected static WebDriver selenium;
@@ -32,7 +36,7 @@ public class BasePage {
 		PageFactory.initElements(selenium, o);
 	}
 
-	public static synchronized WebDriver getDriver()  {
+	public static synchronized WebDriver getDriver() {
 
 		try {
 			// Chrome
@@ -54,44 +58,56 @@ public class BasePage {
 					dcHtml.setCapability("acceptInsecureCerts", true);
 					dcHtml.setCapability("handlesAlerts", true);
 					dcHtml.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, true);
-					
+
 					selenium = getHtmlUnitDriver(dcHtml);
 					dcHtml.setJavascriptEnabled(true);
-					((HtmlUnitDriver)selenium).setJavascriptEnabled(true);
-					selenium.manage().window().maximize();		
-				}
-				else if ("CHROME".equalsIgnoreCase(BROWSER_NAME)) {
+					((HtmlUnitDriver) selenium).setJavascriptEnabled(true);
+					selenium.manage().window().maximize();
+				} else if ("CHROME".equalsIgnoreCase(BROWSER_NAME)) {
 					System.setProperty("webdriver.chrome.driver", WEBDRIVER_PATH);
 					selenium = new ChromeDriver(dcChrome);
 					selenium.manage().window().maximize();
 				}
 			}
 			LOGGER.debug("Driver already initialized");
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			LOGGER.error("ERROR", "Could not launch the WebDriver selenium", e);
 		}
 		return selenium;
 
 	}
-	
+
 	private static HtmlUnitDriver getHtmlUnitDriver(DesiredCapabilities dcHtml) {
-		return new HtmlUnitDriver(dcHtml) {
-			@Override
-			protected WebClient modifyWebClient(WebClient client) {
-				try {
-                String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
-                String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
-                File certificateFile =new File(pathToKeyStore);
-                client.getOptions().setSSLClientCertificate(certificateFile.toURI().toURL(), password, "jks");
+		String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
+		String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
+		if (StringUtils.isBlank(pathToKeyStore)) {
+			return new HtmlUnitDriver(dcHtml);
+		} else {
+			return new HtmlUnitDriver(dcHtml) {
+				@Override
+				protected WebClient modifyWebClient(WebClient client) {
+					try {
+						File certificateFile = new File(pathToKeyStore);
+						client.getOptions().setSSLClientCertificate(certificateFile.toURI().toURL(), password, "jks");
+					} catch (MalformedURLException e) {
+						LOGGER.error("Unable to load JKS");
+						return null;
+					}
+					final String vaultToken = System.getProperty(AppConstants.VAULT_TOKEN_PARAM_NAME);
+					if (!StringUtils.isBlank(vaultToken)) {
+						final String jsonResponse = VaultService.getVaultCredentials(vaultToken);
+						final RESTUtil restUtil = new RESTUtil();
+						String userName = restUtil.parseJSON(jsonResponse, "data.'username'");
+						String password = restUtil.parseJSON(jsonResponse, "data.'password'");
+						DefaultCredentialsProvider provider = new DefaultCredentialsProvider();
+						provider.addCredentials(userName, password);
+						client.setCredentialsProvider(provider);
+					}
+					return client;
 				}
-				catch(MalformedURLException e) {
-					LOGGER.error("Unable to load JKS");
-					return null;
-				}
-                return client;
-			}
-		};
+
+			};
+		}
 	}
 
 	// Wait method used to sync for different objects
