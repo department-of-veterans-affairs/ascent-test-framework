@@ -31,6 +31,9 @@ Created three environment variables for test execution localhost, dev and stagin
 Click on the drop down environment, it displays all the environments imported. 
 Based on the environment the values can be selected from the drop down.
 
+![Environment](/src/test/resources/images/Environment.png "Environment")
+
+
 ## How to Add SSL certificate?  ##
 
 Reference URL for setting up SSL certificate. [Refrence page for SSL](http://blog.getpostman.com/2017/12/05/set-and-view-ssl-certificates-with-postman/)
@@ -38,10 +41,10 @@ Reference URL for setting up SSL certificate. [Refrence page for SSL](http://blo
 
 
 1.	Open a terminal and navigate to the folder where you have the P12 file.
-2.	Use this command to generate CERT openssl pkcs12 -in <name of the p12 file> -nokeys -out my_key_store.crt
-3.	It prompts to enter the password, after that cert is created in the same location.
-4.	Use this command to generate key file openssl pkcs12 -in <name of the p12 file> -nocerts -nodes -out my_store.key
-5.	It prompts to enter the password, after that key file is created in the same location.
+2.	Use this command to generate CERT < openssl pkcs12 -in <name of the p12 file> -nokeys -out my_key_store.crt >
+3.	It prompts to enter the password, cert is created in the same location.
+4.	Use this command to generate key file < openssl pkcs12 -in <name of the p12 file> -nocerts -nodes -out my_store.key >
+5.	It prompts to enter the password, key file is created in the same location.
 6.	Now navigate to postman, From the menu bar click on the settings icon. Opens up a dialog box, click on the certificates tab.
 7.	Click on add certificate. Opens up add client certificate window. Enter the below details 
               
@@ -53,6 +56,10 @@ Reference URL for setting up SSL certificate. [Refrence page for SSL](http://blo
               
               Passphrase: Enter the password
 8.	Click on add button. Certificate is added.
+
+## Make sure the general tab in settings looks like the below screen shot.
+
+![General Settings](/src/test/resources/images/Settings-General.png "General-Settings")
 
 
 
