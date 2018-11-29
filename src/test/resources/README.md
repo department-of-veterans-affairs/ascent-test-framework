@@ -31,7 +31,7 @@ Created three environment variables for test execution localhost, dev and stagin
 Click on the drop down environment, it displays all the environments imported. 
 Based on the environment the values can be selected from the drop down.
 
-![Environment](/src/test/resources/images/Environment.png "Environment")
+![Environment](images/Environment.png "Environment")
 
 
 ## How to Add SSL certificate?  ##
@@ -59,7 +59,7 @@ If you need a P12 file, Please request DevOps team they can provide the file. Fo
 
 ## Make sure the general tab in settings looks like the below screen shot.
 
-![General Settings](/src/test/resources/images/Settings-General.png "General-Settings")
+![General Settings](images/Settings-General.png "General-Settings")
 
 
 

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>gov.va.ascent</groupId>
 		<artifactId>ascent-libraries-parent</artifactId>
-		<version>0.0.8</version>
+		<version>0.0.9-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 
@@ -120,20 +120,20 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-htmlunit-driver</artifactId>
-			<version>${selenium.htmlunit.version}</version>
+			<version>${selenium-htmlunit-driver.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-junit47</artifactId>
-			<version>${surefire.junit47.version}</version>
+			<version>${surefire-junit47.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/net.masterthought/cucumber-reporting -->
 		<dependency>
 			<groupId>net.masterthought</groupId>
 			<artifactId>cucumber-reporting</artifactId>
-			<version>${maven.cucumber.reporting.version}</version>
+			<version>${maven-cucumber-reporting.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
