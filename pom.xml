@@ -25,9 +25,6 @@
 	<url>http://maven.apache.org</url>
 
 	<properties>
-		<!-- establish test framework variable for use by other projects -->
-		<ascent-test-framework.version>${version}</ascent-test-framework.version>
-		
 		<!-- 3rd party versions -->
 		<dom4j.version>2.1.0</dom4j.version>
 	</properties>
