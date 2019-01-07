@@ -14,6 +14,7 @@ import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -101,30 +102,20 @@ public class RESTUtil {
 	 * @return
 	 */
 	public String getResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL), 5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
 
 	public String deleteResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL), 5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
 
 	public String postResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when()
-				.post(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).body(jsonText).when().post(serviceURL), 5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
 	
@@ -156,7 +147,6 @@ public class RESTUtil {
 		        config = new SSLConfig().with().sslSocketFactory(clientAuthFactory).and().allowAllHostnames();
 
 				RestAssured.config = RestAssured.config().sslConfig(config);
-				
 
 			} catch (Exception e) {
 				LOGGER.error("Issue while configuring certificate "+e);
@@ -213,11 +203,8 @@ public class RESTUtil {
 	
 	public String putResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when().put(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).body(jsonText).when().put(serviceURL), 5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
 
@@ -347,4 +334,23 @@ public class RESTUtil {
 		Assert.assertEquals(intStatusCode, actStatusCode);
 	}
 
+    private void doWithRetry(Supplier<Response> supplier, int attempts) {
+        boolean failed = false;
+        int retries = 0;
+        do {
+            response = supplier.get();
+            if (response.getStatusCode() == 404) {
+            		LOGGER.error("Rest Assured API failed with 404 ");
+            		failed = true;
+            		try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						LOGGER.error(e.getMessage(), e);
+						Thread.currentThread().interrupt();
+					}
+            }
+            retries++;
+        }
+        while (failed && retries < attempts);
+    }
 }
