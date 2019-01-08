@@ -8,7 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.restassured.path.json.JsonPath;
-
+/**
+ * Utility class for parsing JSON.
+ * @author sravi
+ *
+ */
 public class JsonUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JsonUtil.class);
 

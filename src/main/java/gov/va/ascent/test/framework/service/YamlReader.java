@@ -5,12 +5,23 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
+/**
+ * Utility class to parse YAML file. 
+ * @author sravi
+ *
+ */
+
 public class YamlReader {
 
 	private YamlReader() {
 
 	}
-
+    /**
+     * Read YAML file for specific property.
+     * @param yamlStr
+     * @param yamlProperty
+     * @return
+     */
 	@SuppressWarnings("unchecked")
 	public static String getProperty(String yamlStr, String yamlProperty) {
 

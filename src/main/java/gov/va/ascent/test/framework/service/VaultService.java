@@ -5,13 +5,22 @@ import java.util.Map;
 
 import gov.va.ascent.test.framework.util.AppConstants;
 import gov.va.ascent.test.framework.util.RESTUtil;
-
+/**
+ * Utility class that makes API call to vault service to receive domain and path.
+ * @author sravi
+ *
+ */
 public class VaultService {
 
 	private VaultService() {
 
 	}
-
+    /**
+     * Invokes API call to vault service to receive domain and path.
+     * If the property does not exist in the System.properties, then the application properties will be searched
+     * @param vaultToken
+     * @return
+     */
 	public static String getVaultCredentials(final String vaultToken) {
 		final RESTConfigService restConfig = RESTConfigService.getInstance();
 		final RESTUtil restUtil = new RESTUtil();

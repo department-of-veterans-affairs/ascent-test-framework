@@ -22,6 +22,11 @@ import gov.va.ascent.test.framework.service.VaultService;
 import gov.va.ascent.test.framework.util.AppConstants;
 import gov.va.ascent.test.framework.util.RESTUtil;
 
+/**
+ * It's a base class for all selenium web page implementation class that contains reusable functionality 
+ * such as configuring webdriver, setting up page objects and SSL configurations.
+ *
+ */
 public class BasePage {
 	protected static WebDriver selenium;
 	private static final String BROWSER_NAME = System.getProperty("browser");
@@ -35,7 +40,10 @@ public class BasePage {
 	public void initialize(Object o) {
 		PageFactory.initElements(selenium, o);
 	}
-
+    /**
+     * Configures webdriver capabilities for chrome and HTML unit driver.
+     * @return
+     */
 	public static synchronized WebDriver getDriver() {
 
 		try {
@@ -76,7 +84,7 @@ public class BasePage {
 		return selenium;
 
 	}
-
+    
 	private static HtmlUnitDriver getHtmlUnitDriver(DesiredCapabilities dcHtml) {
 		String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
 		String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
@@ -110,11 +118,17 @@ public class BasePage {
 		}
 	}
 
-	// Wait method used to sync for different objects
+    /**
+     * Wait method used to sync for different objects
+     * @param waitMilliSeconds
+     * @return
+     */
 	public static synchronized WebDriverWait getWebDriverWait(int waitMilliSeconds) {
 		return new WebDriverWait(selenium, waitMilliSeconds);
 	}
-
+    /**
+     * Delete cookies and close browser.
+     */
 	public static void closeBrowser() {
 		selenium.manage().deleteAllCookies();
 		selenium.quit();
