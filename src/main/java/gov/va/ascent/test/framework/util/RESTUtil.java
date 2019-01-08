@@ -39,7 +39,7 @@ import io.restassured.specification.RequestSpecification;
 /**
  * It is a wrapper for rest assured API for making HTTP calls, parse JSON and
  * xml responses and status code check.
- * 
+ *
  * @author sravi
  */
 
@@ -51,8 +51,8 @@ public class RESTUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTUtil.class);
 
 	private Map<String, String> mapReqHeader = new HashMap<>(); // stores
-																// request
-																// headers
+																 // request
+																 // headers
 	String contentType = new String();
 	String jsonText = new String();
 	File requestFile = null;
@@ -118,7 +118,7 @@ public class RESTUtil {
 	/**
 	 * Invokes REST end point for a delete method using REST assured API and return
 	 * response JSON object.
-	 * 
+	 *
 	 * @param serviceURL
 	 * @return
 	 */
@@ -132,7 +132,7 @@ public class RESTUtil {
 	/**
 	 * Invokes REST end point for a Post method using REST assured API and return
 	 * response JSON object.
-	 * 
+	 *
 	 * @param serviceURL
 	 * @return
 	 */
@@ -184,7 +184,7 @@ public class RESTUtil {
 	/**
 	 * Invokes REST end point for a multipart method using REST assured API and
 	 * return response json object.
-	 * 
+	 *
 	 * @param serviceURL
 	 * @return
 	 */
@@ -237,7 +237,7 @@ public class RESTUtil {
 	/**
 	 * Invokes REST end point for a put method using REST assured API and return
 	 * response JSON object.
-	 * 
+	 *
 	 * @param serviceURL
 	 * @return
 	 */
@@ -251,6 +251,7 @@ public class RESTUtil {
 
 	/**
 	 * Parses JSON object for a given key and match with given expected value.
+	 *
 	 * @param json
 	 * @param strRoot
 	 * @param strField
@@ -275,7 +276,7 @@ public class RESTUtil {
 
 	/**
 	 * Parses json object for a given key and returns the match value.
-	 * 
+	 *
 	 * @param json
 	 * @param strField
 	 * @return
@@ -293,6 +294,7 @@ public class RESTUtil {
 
 	/**
 	 * Parse JSON object at root level and returns the final JSON.
+	 *
 	 * @param json
 	 * @param strRoot
 	 * @return
@@ -306,6 +308,7 @@ public class RESTUtil {
 
 	/**
 	 * Parse XML object for a given key and match with given expected value.
+	 *
 	 * @param xml
 	 * @param strFieldName
 	 * @param strExpectedValue
@@ -325,6 +328,7 @@ public class RESTUtil {
 
 	/**
 	 * Parse XML object for a given key and returns the match value.
+	 *
 	 * @param xml
 	 * @param strFieldName
 	 * @return
@@ -337,6 +341,7 @@ public class RESTUtil {
 
 	/**
 	 * Parse XML object for a given key and match with given expected value.
+	 *
 	 * @param xml
 	 * @param strRoot
 	 * @param strFieldName
@@ -358,6 +363,7 @@ public class RESTUtil {
 
 	/**
 	 * Formats the XML in pretty format.
+	 *
 	 * @param strXml
 	 * @return
 	 */
@@ -380,6 +386,7 @@ public class RESTUtil {
 
 	/**
 	 * Loads the expected results from source folder and returns as string.
+	 *
 	 * @param filename
 	 * @return
 	 */
@@ -417,6 +424,7 @@ public class RESTUtil {
 
 	/**
 	 * Asserts the response status code with the given status code.
+	 *
 	 * @param intStatusCode
 	 */
 	public void validateStatusCode(final int intStatusCode) {
@@ -427,6 +435,7 @@ public class RESTUtil {
 	/**
 	 * Performs actual execution of given supplier function with retries. The
 	 * execution attempts to retry until it reaches the max attempts or successful execution.
+	 *
 	 * @param supplier
 	 * @param attempts
 	 */
@@ -441,8 +450,7 @@ public class RESTUtil {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
-					LOGGER.error(e.getMessage(), e);
-					Thread.currentThread().interrupt();
+					LOGGER.info("While thread was waiting to retry REST call ... " + e.getMessage(), e);
 				}
 			}
 			retries++;
