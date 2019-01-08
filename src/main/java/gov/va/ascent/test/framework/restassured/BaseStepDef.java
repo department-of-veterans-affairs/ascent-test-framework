@@ -21,6 +21,12 @@ import gov.va.ascent.test.framework.service.BearerTokenService;
 import gov.va.ascent.test.framework.service.RESTConfigService;
 import gov.va.ascent.test.framework.util.RESTUtil;
 
+/**
+ * Base class for all step definition.
+ * 
+ * @author sravi
+ */
+
 public class BaseStepDef {
 	protected RESTUtil resUtil = null;
 	protected Map<String, String> headerMap = null;
@@ -35,10 +41,21 @@ public class BaseStepDef {
 		restConfig = RESTConfigService.getInstance();
 	}
 
+	/**
+	 * Stores key value pair from cucumber to a map.
+	 * 
+	 * @param tblHeader
+	 */
 	public void passHeaderInformation(final Map<String, String> tblHeader) {
 		headerMap = new HashMap<>(tblHeader);
 	}
 
+	/**
+	 * Sets the bearer token and delegates get API call to rest util.
+	 * 
+	 * @param strURL
+	 * @param isAuth
+	 */
 	public void invokeAPIUsingGet(final String strURL, final boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
@@ -46,11 +63,23 @@ public class BaseStepDef {
 		invokeAPIUsingGet(strURL);
 	}
 
+	/**
+	 * Delegates get API call without bearer token to rest util.
+	 * 
+	 * @param strURL
+	 */
+
 	public void invokeAPIUsingGet(final String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.getResponse(strURL);
 	}
 
+	/**
+	 * Sets the bearer token and delegates post API call to rest util.
+	 * 
+	 * @param strURL
+	 * @param isAuth
+	 */
 	public void invokeAPIUsingPost(final String strURL, final boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
@@ -58,11 +87,23 @@ public class BaseStepDef {
 		invokeAPIUsingPost(strURL);
 	}
 
+	/**
+	 * Delegates post API call without bearer token to rest util.
+	 * 
+	 * @param strURL
+	 */
 	public void invokeAPIUsingPost(final String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponse(strURL);
 	}
 
+	/**
+	 * Delegates Multipart API call without bearer token to rest util.
+	 * 
+	 * @param strURL
+	 * @param fileName
+	 * @param submitPayloadPath
+	 */
 	public void invokeAPIUsingPostWithMultiPart(final String strURL, final String fileName, final String submitPayloadPath) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.postResponseWithMultipart(strURL, fileName, submitPayloadPath);
@@ -73,6 +114,12 @@ public class BaseStepDef {
 		strResponse = resUtil.postResponseWithMultipart(strURL, fileName, submitPayloadPath);
 	}
 
+	/**
+	 * Sets the bearer token and delegates delete API call to rest util.
+	 * 
+	 * @param strURL
+	 * @param isAuth
+	 */
 	public void invokeAPIUsingDelete(final String strURL, final boolean isAuth) {
 		if (isAuth) {
 			setBearerToken();
@@ -80,17 +127,30 @@ public class BaseStepDef {
 		invokeAPIUsingDelete(strURL);
 	}
 
+	/**
+	 * Delegates delete API call without bearer token to rest util.
+	 * 
+	 * @param strURL
+	 */
 	public void invokeAPIUsingDelete(final String strURL) {
 		resUtil.setUpRequest(headerMap);
 		strResponse = resUtil.deleteResponse(strURL);
 	}
 
+	/**
+	 * Invokes bearer token service to get token and sets as authorization key in header map.
+	 */
 	private void setBearerToken() {
 		bearerTokenService = BearerTokenService.getInstance();
 		final String bearerToken = bearerTokenService.getBearerToken();
 		headerMap.put("Authorization", "Bearer " + bearerToken);
 	}
 
+	/**
+	 * Validates the status code.
+	 * 
+	 * @param intStatusCode
+	 */
 	public void validateStatusCode(final int intStatusCode) {
 		resUtil.validateStatusCode(intStatusCode);
 	}
@@ -168,6 +228,11 @@ public class BaseStepDef {
 		return true;
 	}
 
+	/**
+	 * Writes the response to the target folder.
+	 * 
+	 * @param scenario
+	 */
 	public void postProcess(final Scenario scenario) {
 		String strResponseFile = null;
 		try {

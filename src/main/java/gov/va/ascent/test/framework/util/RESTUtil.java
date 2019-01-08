@@ -14,6 +14,7 @@ import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +36,13 @@ import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
+/**
+ * It is a wrapper for rest assured API for making HTTP calls, parse JSON and
+ * xml responses and status code check.
+ *
+ * @author sravi
+ */
+
 public class RESTUtil {
 
 	private static final String DOCUMENTS_FOLDER_NAME = "documents";
@@ -51,10 +59,10 @@ public class RESTUtil {
 	File responseFile = null;
 	PrintStream requestStream = null;
 	Response response = null; // stores response from rest
+
 	public RESTUtil() {
 		configureRestAssured();
 	}
-
 
 	/**
 	 * Reads file content for a given file resource using URL object.
@@ -95,134 +103,154 @@ public class RESTUtil {
 
 	/**
 	 * Invokes REST end point for a GET method using REST assured API and return
-	 * response json object.
+	 * response JSON object.
 	 *
 	 * @param serviceURL
 	 * @return
 	 */
 	public String getResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().get(serviceURL),
+				5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
 
+	/**
+	 * Invokes REST end point for a delete method using REST assured API and return
+	 * response JSON object.
+	 *
+	 * @param serviceURL
+	 * @return
+	 */
 	public String deleteResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).when().delete(serviceURL),
+				5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
 
+	/**
+	 * Invokes REST end point for a Post method using REST assured API and return
+	 * response JSON object.
+	 *
+	 * @param serviceURL
+	 * @return
+	 */
 	public String postResponse(final String serviceURL) {
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when()
-				.post(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).body(jsonText).when()
+				.post(serviceURL), 5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
-	
+
+	/**
+	 * Loads the KeyStore and password in to rest assured API so all the API's are SSL enabled.
+	 */
 	private void configureRestAssured() {
 		String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
-		if(StringUtils.isBlank(pathToKeyStore)) {
+		if (StringUtils.isBlank(pathToKeyStore)) {
 			RestAssured.useRelaxedHTTPSValidation();
-		}
-		else {
-			KeyStore keyStore = null;		
+		} else {
+			KeyStore keyStore = null;
 			String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
 
-			try(FileInputStream instream = new FileInputStream(pathToKeyStore)) {
+			try (FileInputStream instream = new FileInputStream(pathToKeyStore)) {
 				keyStore = KeyStore.getInstance("jks");
-				keyStore.load(instream, password.toCharArray());				
+				keyStore.load(instream, password.toCharArray());
+			} catch (Exception e) {
+				LOGGER.error("Issue with the certificate or password", e);
 			}
-			catch (Exception e) {
-				 LOGGER.error("Issue with the certificate or password"+e);
-			} 
 
 			org.apache.http.conn.ssl.SSLSocketFactory clientAuthFactory = null;
 			SSLConfig config = null;
 
 			try {
 				clientAuthFactory = new org.apache.http.conn.ssl.SSLSocketFactory(keyStore, password);
-				  // set the config in rest assured
+				// set the config in rest assured
 				X509HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
 				clientAuthFactory.setHostnameVerifier(hostnameVerifier);
-		        config = new SSLConfig().with().sslSocketFactory(clientAuthFactory).and().allowAllHostnames();
+				config = new SSLConfig().with().sslSocketFactory(clientAuthFactory).and().allowAllHostnames();
 
 				RestAssured.config = RestAssured.config().sslConfig(config);
-				
 
 			} catch (Exception e) {
-				LOGGER.error("Issue while configuring certificate "+e);
-				
-			}			
-		}
-		
-	}
-	
+				LOGGER.error("Issue while configuring certificate ", e);
 
-	public String postResponseWithMultipart(final String serviceURL, final String fileName, final String submitPayloadPath) {
+			}
+		}
+
+	}
+
+	/**
+	 * Invokes REST end point for a multipart method using REST assured API and
+	 * return response json object.
+	 *
+	 * @param serviceURL
+	 * @return
+	 */
+
+	public String postResponseWithMultipart(final String serviceURL, final String fileName,
+			final String submitPayloadPath) {
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
 		final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
-		final URL urlSubmitPayload = RESTUtil.class.getClassLoader().getResource(PAYLOAD_FOLDER_NAME + "/" + submitPayloadPath);
-		
+		final URL urlSubmitPayload = RESTUtil.class.getClassLoader()
+				.getResource(PAYLOAD_FOLDER_NAME + "/" + submitPayloadPath);
+
 		try {
 			final File filePath = new File(urlFilePath.toURI());
 			final File filePathSubmitPayload = new File(urlSubmitPayload.toURI());
 			String submitPayload = FileUtils.readFileToString(filePathSubmitPayload, "UTF-8");
-			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false).headers(mapReqHeader).when()
-					.multiPart("file", filePath)
-					.multiPart(SUBMIT_PAYLOAD, submitPayload, "application/json")
-					.post(serviceURL);
+			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false)
+					.headers(mapReqHeader).when().multiPart("file", filePath)
+					.multiPart(SUBMIT_PAYLOAD, submitPayload, "application/json").post(serviceURL);
 		} catch (final Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
-			
+
 		}
 		return response.asString();
-		
+
 	}
-	
-	public String postResponseWithMultipart(final String serviceURL, final String fileName, final byte[] submitPayload) {
+
+	public String postResponseWithMultipart(final String serviceURL, final String fileName,
+			final byte[] submitPayload) {
 		RequestSpecification requestSpecification = given();
 		if (LOGGER.isDebugEnabled()) {
 			requestSpecification = given().log().all();
 		}
 		final URL urlFilePath = RESTUtil.class.getClassLoader().getResource(DOCUMENTS_FOLDER_NAME + "/" + fileName);
-		
+
 		try {
 			final File filePath = new File(urlFilePath.toURI());
-			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false).headers(mapReqHeader).when()
-					.multiPart("file", filePath)
-					.multiPart(SUBMIT_PAYLOAD, SUBMIT_PAYLOAD, submitPayload, "application/json")
-					.post(serviceURL);
+			response = requestSpecification.contentType("multipart/form-data").urlEncodingEnabled(false)
+					.headers(mapReqHeader).when().multiPart("file", filePath)
+					.multiPart(SUBMIT_PAYLOAD, SUBMIT_PAYLOAD, submitPayload, "application/json").post(serviceURL);
 		} catch (final Exception ex) {
-			
+
 		}
 		return response.asString();
-		
+
 	}
-	
+
+	/**
+	 * Invokes REST end point for a put method using REST assured API and return
+	 * response JSON object.
+	 *
+	 * @param serviceURL
+	 * @return
+	 */
 	public String putResponse(final String serviceURL) {
 		RestAssured.useRelaxedHTTPSValidation();
-		RequestSpecification requestSpecification = given();
-		if (LOGGER.isDebugEnabled()) {
-			requestSpecification = given().log().all();
-		}
-		response = requestSpecification.urlEncodingEnabled(false).headers(mapReqHeader).body(jsonText).when().put(serviceURL);
+		doWithRetry(() -> given().log().all().headers(mapReqHeader).urlEncodingEnabled(false).body(jsonText).when()
+				.put(serviceURL), 5);
+		LOGGER.info(response.getBody().asString());
 		return response.asString();
 	}
 
 	/**
-	 * Parses json object for a given key and match with given expected value.
+	 * Parses JSON object for a given key and match with given expected value.
 	 *
 	 * @param json
 	 * @param strRoot
@@ -230,7 +258,8 @@ public class RESTUtil {
 	 * @param strExpectedValue
 	 * @return
 	 */
-	public String parseJSON(final String json, final String strRoot, final String strField, final String strExpectedValue) {
+	public String parseJSON(final String json, final String strRoot, final String strField,
+			final String strExpectedValue) {
 		String strResult = null;
 		final JsonPath jsonPath = new JsonPath(json).setRoot(strRoot);
 		final List<String> lstField = jsonPath.get(strField);
@@ -245,6 +274,13 @@ public class RESTUtil {
 		return strResult;
 	}
 
+	/**
+	 * Parses json object for a given key and returns the match value.
+	 *
+	 * @param json
+	 * @param strField
+	 * @return
+	 */
 	public String parseJSON(final String json, final String strField) {
 		String strResult = null;
 		try {
@@ -256,6 +292,13 @@ public class RESTUtil {
 		return strResult;
 	}
 
+	/**
+	 * Parse JSON object at root level and returns the final JSON.
+	 *
+	 * @param json
+	 * @param strRoot
+	 * @return
+	 */
 	public String parseJSONroot(final String json, final String strRoot) {
 		String strResult = null;
 		strResult = new JsonPath(json).get(strRoot).toString();
@@ -263,6 +306,14 @@ public class RESTUtil {
 		return strResult;
 	}
 
+	/**
+	 * Parse XML object for a given key and match with given expected value.
+	 *
+	 * @param xml
+	 * @param strFieldName
+	 * @param strExpectedValue
+	 * @return
+	 */
 	public String parseXML(final String xml, final String strFieldName, final String strExpectedValue) {
 		String strResult = null;
 
@@ -275,13 +326,30 @@ public class RESTUtil {
 		return strResult;
 	}
 
+	/**
+	 * Parse XML object for a given key and returns the match value.
+	 *
+	 * @param xml
+	 * @param strFieldName
+	 * @return
+	 */
 	public String parseXML(final String xml, final String strFieldName) {
 		final XmlPath xmlPath = new XmlPath(xml);
 		return xmlPath.get(strFieldName).toString();
 
 	}
 
-	public String parseXML(final String xml, final String strRoot, final String strFieldName, final String strExpectedValue) {
+	/**
+	 * Parse XML object for a given key and match with given expected value.
+	 *
+	 * @param xml
+	 * @param strRoot
+	 * @param strFieldName
+	 * @param strExpectedValue
+	 * @return
+	 */
+	public String parseXML(final String xml, final String strRoot, final String strFieldName,
+			final String strExpectedValue) {
 		String strResult = null;
 
 		final XmlPath xmlPath = new XmlPath(xml).setRoot(strRoot);
@@ -293,6 +361,12 @@ public class RESTUtil {
 		return strResult;
 	}
 
+	/**
+	 * Formats the XML in pretty format.
+	 *
+	 * @param strXml
+	 * @return
+	 */
 	public String prettyFormatXML(final String strXml) {
 		final String xml = strXml;
 		String result = null;
@@ -310,6 +384,12 @@ public class RESTUtil {
 		return result;
 	}
 
+	/**
+	 * Loads the expected results from source folder and returns as string.
+	 *
+	 * @param filename
+	 * @return
+	 */
 	public String readExpectedResponse(final String filename) {
 		String strExpectedResponse = null;
 		try {
@@ -342,9 +422,38 @@ public class RESTUtil {
 
 	}
 
+	/**
+	 * Asserts the response status code with the given status code.
+	 *
+	 * @param intStatusCode
+	 */
 	public void validateStatusCode(final int intStatusCode) {
 		final int actStatusCode = response.getStatusCode();
 		Assert.assertEquals(intStatusCode, actStatusCode);
 	}
 
+	/**
+	 * Performs actual execution of given supplier function with retries. The
+	 * execution attempts to retry until it reaches the max attempts or successful execution.
+	 *
+	 * @param supplier
+	 * @param attempts
+	 */
+	private void doWithRetry(Supplier<Response> supplier, int attempts) {
+		boolean failed = false;
+		int retries = 0;
+		do {
+			response = supplier.get();
+			if (response.getStatusCode() == 404) {
+				LOGGER.error("Rest Assured API failed with 404 ");
+				failed = true;
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					LOGGER.info("While thread was waiting to retry REST call ... " + e.getMessage(), e);
+				}
+			}
+			retries++;
+		} while (failed && retries < attempts);
+	}
 }
