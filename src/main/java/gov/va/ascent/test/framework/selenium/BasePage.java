@@ -2,8 +2,8 @@ package gov.va.ascent.test.framework.selenium;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import org.apache.commons.lang3.StringUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -14,6 +14,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
 import com.gargoylesoftware.htmlunit.WebClient;
 
@@ -23,7 +24,7 @@ import gov.va.ascent.test.framework.util.AppConstants;
 import gov.va.ascent.test.framework.util.RESTUtil;
 
 /**
- * It's a base class for all selenium web page implementation class that contains reusable functionality 
+ * It's a base class for all selenium web page implementation class that contains reusable functionality
  * such as configuring webdriver, setting up page objects and SSL configurations.
  *
  */
@@ -40,10 +41,12 @@ public class BasePage {
 	public void initialize(Object o) {
 		PageFactory.initElements(selenium, o);
 	}
-    /**
-     * Configures webdriver capabilities for chrome and HTML unit driver.
-     * @return
-     */
+
+	/**
+	 * Configures webdriver capabilities for chrome and HTML unit driver.
+	 * 
+	 * @return
+	 */
 	public static synchronized WebDriver getDriver() {
 
 		try {
@@ -84,7 +87,7 @@ public class BasePage {
 		return selenium;
 
 	}
-    
+
 	private static HtmlUnitDriver getHtmlUnitDriver(DesiredCapabilities dcHtml) {
 		String pathToKeyStore = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStore", true);
 		String password = RESTConfigService.getInstance().getProperty("javax.net.ssl.keyStorePassword", true);
@@ -98,7 +101,7 @@ public class BasePage {
 						File certificateFile = new File(pathToKeyStore);
 						client.getOptions().setSSLClientCertificate(certificateFile.toURI().toURL(), password, "jks");
 					} catch (MalformedURLException e) {
-						LOGGER.error("Unable to load JKS");
+						LOGGER.error("Unable to load JKS", e);
 						return null;
 					}
 					final String vaultToken = System.getProperty(AppConstants.VAULT_TOKEN_PARAM_NAME);
@@ -118,17 +121,19 @@ public class BasePage {
 		}
 	}
 
-    /**
-     * Wait method used to sync for different objects
-     * @param waitMilliSeconds
-     * @return
-     */
+	/**
+	 * Wait method used to sync for different objects
+	 * 
+	 * @param waitMilliSeconds
+	 * @return
+	 */
 	public static synchronized WebDriverWait getWebDriverWait(int waitMilliSeconds) {
 		return new WebDriverWait(selenium, waitMilliSeconds);
 	}
-    /**
-     * Delete cookies and close browser.
-     */
+
+	/**
+	 * Delete cookies and close browser.
+	 */
 	public static void closeBrowser() {
 		selenium.manage().deleteAllCookies();
 		selenium.quit();
