@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.openqa.selenium.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,7 +200,9 @@ public class BaseStepDef {
 			final Object strResponseJson = mapper.readValue(strResponse, Object.class);
 			final String prettyStrResponseJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(strResponseJson);
 			isMatch = prettyStrResponseJson.contains(prettyStrExpectedResponse);
-		} catch (final IOException ioe) {
+			Assert.assertEquals("Actual and expected response are not equal -"+ "Actual Response"+ prettyStrResponseJson +  "\n Expected Response" + prettyStrExpectedResponse ,prettyStrResponseJson, prettyStrExpectedResponse);	
+			} 
+		catch (final IOException ioe) {
 			LOGGER.error(ioe.getMessage(), ioe);
 		}
 		return isMatch;
