@@ -1,26 +1,17 @@
-# ascent-test-framework
+# This repository is no longer maintained.
 
+Issue reports and pull requests will not be attended. 
 
+To deploy spring boot and spring cloud microservices on BIP Platform, refer to the following repositories:
 
-You are in the "master" branch of Ascent test framework. As the code hasn't been pushed to any environments, the most current branch is "development". So for developers who are looking to install the ascent-test-framework or browse the codebase, switch to development branch.
+**DSVA**
+1. BIP Framework: https://github.com/department-of-veterans-affairs/bip-framework
+2. BIP Reference Person Example Service: https://github.com/department-of-veterans-affairs/bip-reference-person
+3. BIP Archetype Service: https://github.com/department-of-veterans-affairs/bip-archetype-service
+4. BIP Jenkins Library: https://github.com/department-of-veterans-affairs/os-svc-jenkins-lib/
 
-### **What is this repository for?**
-
-Ascent Test Framework is customized to support testing the REST Services used by Ascent applications. 
-
-### Ascent Test Framework Documentation
-
-[Ascent Home Page ](https://github.com/department-of-veterans-affairs/ascent-test-framework/wiki)
-
-### Links for other Testing Documentation
-[Ascent Test Framework](https://github.com/department-of-veterans-affairs/ascent-test-framework/wiki/Ascent-Test-Framework)
-
-
-[Ascent Demo Service Integration Test](https://github.com/department-of-veterans-affairs/ascent-sample/wiki/QA:-Demo-Service-Integration-Test)
-
-
- [Gherkin Standards and Best Practices](https://github.com/department-of-veterans-affairs/ascent-sample/wiki/QA-:-Gherkins-Standards-and-Best-Practices)
- 
-[Performance Load Testing Tools](https://github.com/department-of-veterans-affairs/ascent-sample/wiki/QA-:-Performance-Load-Testing-Tools)
-
- [Performance Test Plan](https://github.com/department-of-veterans-affairs/ascent-sample/wiki/QA-:-Performance-Test-Plan-using-JMeter)
+**EPMO**
+1. BIP Framework: https://github.ec.va.gov/EPMO/bip-framework
+2. BIP Reference Person Example Service: https://github.ec.va.gov/EPMO/bip-reference-person
+3. BIP Archetype Service: https://github.ec.va.gov/EPMO/bip-archetype-service
+4. BIP Jenkins Library: https://github.ec.va.gov/EPMO/bip-jenkins-lib
